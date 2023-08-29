@@ -1,0 +1,2 @@
+all:
+	ocaml expression.ml
