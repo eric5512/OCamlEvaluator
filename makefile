@@ -1,2 +1,16 @@
+.PHONY: all clean
+
+MENHIR          := menhir
+
+MENHIRFLAGS     := --infer
+
+OCAMLBUILD      := ocamlbuild -use-ocamlfind -use-menhir -menhir "$(MENHIR) $(MENHIRFLAGS)"
+
+MAIN            := expression
+
 all:
-	ocaml expression.ml
+	$(OCAMLBUILD) $(MAIN).native
+
+clean:
+	rm -f *~ .*~
+	$(OCAMLBUILD) -clean
