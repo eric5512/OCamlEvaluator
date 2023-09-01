@@ -135,7 +135,10 @@ let function_list: (string * (float -> float)) list = ["sin", Float.sin;
                                                        "tan", Float.tan;
                                                        "asin", Float.asin;
                                                        "acos", Float.acos;
-                                                       "atan", Float.atan;];;
+                                                       "atan", Float.atan;
+                                                       "log10", Float.log10;
+                                                       "log2", Float.log2;
+                                                       "ln", Float.log];;
 
 let variables: (string, float) Hashtbl.t = Hashtbl.create 10;;
 
