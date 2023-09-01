@@ -6,7 +6,7 @@ MENHIRFLAGS     := --infer
 
 OCAMLBUILD      := ocamlbuild -use-ocamlfind -use-menhir -menhir "$(MENHIR) $(MENHIRFLAGS)"
 
-MAIN            := expression
+MAIN            := oeval
 
 all:
 	$(OCAMLBUILD) $(MAIN).native

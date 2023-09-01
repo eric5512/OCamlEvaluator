@@ -1,9 +1,8 @@
-open Operation;;
 
 let process (line : string) =
   let linebuf = Lexing.from_string line in
   try
-    Printf.printf "%f\n%!" (eval variables functions (Parser.main Lexer.token linebuf))
+    Printf.fprintf stderr "%s\n%!" (Operation.simplify (Parser.main Lexer.token linebuf) |> Operation.string_of_operation) (*Printf.printf "%f\n%!" (eval variables functions (Parser.main Lexer.token linebuf))*)
   with
   | Lexer.Error msg ->
       Printf.fprintf stderr "%s\n%!" msg
