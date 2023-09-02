@@ -36,5 +36,7 @@ and token = parse
     { LPAR }
 | ')'
     { RPAR }
+| ','
+    { COMMA }
 | _
     { raise (Error (Printf.sprintf "At offset %d: unexpected character.\n" (Lexing.lexeme_start lexbuf))) }

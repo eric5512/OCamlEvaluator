@@ -10,7 +10,8 @@ MAIN            := oeval
 
 all:
 	$(OCAMLBUILD) $(MAIN).native
-
+	
 clean:
 	rm -f *~ .*~
+	rm *.cmi *.cmo
 	$(OCAMLBUILD) -clean

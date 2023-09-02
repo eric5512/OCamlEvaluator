@@ -1,28 +1,57 @@
+let var = ref "";;
+let mode = ref "";;
 
-let process (line : string) =
+let process (line : string): (Operation.operation_t, string) Either.t =
   let linebuf = Lexing.from_string line in
   try
-    Printf.fprintf stderr "%s\n%!" (Operation.simplify (Parser.main Lexer.token linebuf) |> Operation.string_of_operation) (*Printf.printf "%f\n%!" (eval variables functions (Parser.main Lexer.token linebuf))*)
+    Left (Parser.main Lexer.token linebuf)
   with
   | Lexer.Error msg ->
-      Printf.fprintf stderr "%s\n%!" msg
+      Right (Format.sprintf "%s\n%!" msg)
   | Parser.Error ->
-      Printf.fprintf stderr "At offset %d: syntax error.\n%!" (Lexing.lexeme_start linebuf)
+      Right (Format.sprintf "At offset %d: syntax error.\n%!" (Lexing.lexeme_start linebuf))
   | Not_found ->
-      Printf.fprintf stderr "Unknown identifier\n%!";;
+      Right "Unknown identifier\n%!";;
 
+let execute op = 
+  Printf.printf "%s\n%!"
+  (match !mode with
+  | "simplify" -> 
+    (Operation.simplify op |> Operation.string_of_operation) 
+  | "evaluate" -> 
+    (Operation.eval Operation.variables Operation.functions op |> string_of_float)
+  | "derivate" -> 
+    (Operation.derivate !var op |> Operation.simplify |> Operation.string_of_operation)
+  | _ as m -> raise (Arg.Bad (m)));;
+  
 let process (optional_line : string option) =
   match optional_line with
   | None ->
       ()
   | Some line ->
-      process line;;
+      try
+        (match process line with
+          | Left op -> execute op
+          | Right msg -> print_string msg)
+      with
+      | Function.Apply_error (e, g) ->
+        Printf.printf "Error applying arguments to function. %d given and %d expected\n%!" g e;;
 
 let rec repeat channel =
   let optional_line, continue = Lexer.line channel in
   process optional_line;
   if continue then
     repeat channel;;
+
+let main =
+  begin
+    let speclist = [
+    ("--var", Arg.Set_string var, "Selects the variable when mode is \"derivate\"");
+    ("--mode", Arg.Symbol (["simplify"; "evaluate"; "derivate"], (fun s -> mode := s)), " Selects the mode");
+    ]
+    in let usage_msg = "oeval --mode <mode> --var <variable_name>"
+    in Arg.parse speclist print_endline usage_msg;
+  end
   
 let () =
   repeat (Lexing.from_channel stdin);;
