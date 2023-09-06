@@ -1,5 +1,6 @@
 let var = ref "";;
 let mode = ref "";;
+let file = ref "";;
 
 let process (line : string): (Operation.operation_t, string) Either.t =
   let linebuf = Lexing.from_string line in
@@ -47,11 +48,12 @@ let main =
   begin
     let speclist = [
     ("--var", Arg.Set_string var, "Selects the variable when mode is \"derivate\"");
+    ("--file", Arg.Set_string file, "Selects the input file");
     ("--mode", Arg.Symbol (["simplify"; "evaluate"; "derivate"], (fun s -> mode := s)), " Selects the mode");
     ]
     in let usage_msg = "oeval --mode <mode> --var <variable_name>"
     in Arg.parse speclist print_endline usage_msg;
+    
+    let in_chnl = if !file <> "" then open_in !file else stdin in
+    repeat (Lexing.from_channel in_chnl);
   end
-  
-let () =
-  repeat (Lexing.from_channel stdin);;

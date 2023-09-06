@@ -1,16 +1,19 @@
-.PHONY: all clean
+.PHONY: all clean test
 
 MENHIR          := menhir
 
 MENHIRFLAGS     := --infer
 
-OCAMLBUILD      := ocamlbuild -use-ocamlfind -use-menhir -menhir "$(MENHIR) $(MENHIRFLAGS)"
+OCAMLBUILD      := ocamlbuild -I src -use-ocamlfind -use-menhir -menhir "$(MENHIR) $(MENHIRFLAGS)"
 
 MAIN            := oeval
 
 all:
 	$(OCAMLBUILD) $(MAIN).native
-	
+
+test: all
+	./test/test.sh
+
 clean:
 	rm -f *~ .*~
 	rm *.cmi *.cmo
