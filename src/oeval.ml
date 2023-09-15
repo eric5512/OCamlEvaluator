@@ -24,7 +24,7 @@ let execute op =
   | "derivate" -> 
     (Operation.derivate !var op |> Operation.simplify |> Operation.string_of_operation)
   | _ as m -> raise (Arg.Bad (m)));;
-  
+
 let process (optional_line : string option) =
   match optional_line with
   | None ->

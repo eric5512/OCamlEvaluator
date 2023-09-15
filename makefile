@@ -9,12 +9,13 @@ OCAMLBUILD      := ocamlbuild -I src -use-ocamlfind -use-menhir -menhir "$(MENHI
 MAIN            := oeval
 
 all:
+	rm -f ./src/*.cmi
 	$(OCAMLBUILD) $(MAIN).native
+	cp ./_build/src/*.cmi ./src/
 
 test: all
 	./test/test.sh
 
 clean:
 	rm -f *~ .*~
-	rm *.cmi *.cmo
 	$(OCAMLBUILD) -clean

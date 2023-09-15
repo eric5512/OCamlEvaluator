@@ -170,16 +170,31 @@ let function_list: (string * Function.function_t) list = [
   "asin", Function.Arg1 Float.asin;
   "acos", Function.Arg1 Float.acos;
   "atan", Function.Arg1 Float.atan;
+
+  "sinh", Function.Arg1 Float.sinh;
+  "cosh", Function.Arg1 Float.cosh;
+  "tanh", Function.Arg1 Float.tanh;
+  "asinh", Function.Arg1 Float.asinh;
+  "acosh", Function.Arg1 Float.acosh;
+  "atanh", Function.Arg1 Float.atanh;
+  
   "log10", Function.Arg1 Float.log10;
   "log2", Function.Arg1 Float.log2;
   "ln", Function.Arg1 Float.log;
-  ];;
+  
+  "mod", Function.Arg2 Float.rem;
+  "sqrt", Function.Arg1 Float.sqrt;
+  "abs", Function.Arg1 Float.abs;
+];;
 
 let variables: (string, float) Hashtbl.t = Hashtbl.create 10;;
 
-let variable_list: (string * float) list = ["pi", Float.pi;
-                                            "inf", Float.infinity;
-                                            "euler", 2.718281828459045;];;
+let variable_list: (string * float) list = [
+  "pi", Float.pi;
+  "inf", Float.infinity;
+  "euler", 2.718281828459045;
+  "epsilon", Float.epsilon;
+];;
 
 let () = Hashtbl.add_seq functions (List.to_seq function_list);
          Hashtbl.add_seq variables (List.to_seq variable_list);;

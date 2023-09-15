@@ -1,5 +1,5 @@
 %{
-open Operation
+open Expression
 %}
 
 %token <float> NUM
@@ -8,11 +8,13 @@ open Operation
 %token LPAR RPAR COMMA
 %token EOL
 
+%token ASSIGN
+
 %left ADD SUB
 %left MUL DIV
 %left POW
 
-%start <operation_t> main
+%start <expr_t> main
 
 %%
 

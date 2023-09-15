@@ -22,6 +22,8 @@ and token = parse
     { NUM (float_of_string f) }
 | ['a'-'z' 'A'-'Z'] ['a'-'z' 'A'-'Z' '0'-'9']* as s 
     { ID s }
+| ":="
+    { ASSIGN }
 | '+'
     { ADD }
 | '-'
