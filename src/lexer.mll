@@ -18,6 +18,8 @@ and token = parse
     { token lexbuf }
 | '\n'
     { EOL }
+| "def"
+    { DEF }
 | ['0'-'9']+ '.'? ['0'-'9']* as f
     { NUM (float_of_string f) }
 | ['a'-'z' 'A'-'Z'] ['a'-'z' 'A'-'Z' '0'-'9']* as s 

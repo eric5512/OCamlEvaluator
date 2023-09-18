@@ -2,27 +2,27 @@ let var = ref "";;
 let mode = ref "";;
 let file = ref "";;
 
-let process (line : string): (Operation.operation_t, string) Either.t =
+let process (line : string): (Expression.expr_t, string) Either.t =
   let linebuf = Lexing.from_string line in
   try
     Left (Parser.main Lexer.token linebuf)
   with
   | Lexer.Error msg ->
-      Right (Format.sprintf "%s\n%!" msg)
+    Right msg
   | Parser.Error ->
-      Right (Format.sprintf "At offset %d: syntax error.\n%!" (Lexing.lexeme_start linebuf))
+    Right (Format.sprintf "At offset %d: syntax error." (Lexing.lexeme_start linebuf))
   | Not_found ->
-      Right "Unknown identifier\n%!";;
+    Right "Unknown identifier";;
 
-let execute op = 
+let execute_op op = 
   Printf.printf "%s\n%!"
   (match !mode with
   | "simplify" -> 
-    (Operation.simplify op |> Operation.string_of_operation) 
+    (Expression.simplify op |> Expression.string_of_operation) 
   | "evaluate" -> 
-    (Operation.eval Operation.variables Operation.functions op |> string_of_float)
+    (Expression.eval Expression.variables op |> string_of_float)
   | "derivate" -> 
-    (Operation.derivate !var op |> Operation.simplify |> Operation.string_of_operation)
+    (Expression.derivate !var op |> Expression.simplify |> Expression.string_of_operation)
   | _ as m -> raise (Arg.Bad (m)));;
 
 let process (optional_line : string option) =
@@ -32,10 +32,12 @@ let process (optional_line : string option) =
   | Some line ->
       try
         (match process line with
-          | Left op -> execute op
-          | Right msg -> print_string msg)
+          | Left (Op op) -> execute_op op
+          | Left (FunDef (n, args, v)) -> Hashtbl.add Expression.functions n (CFun (args, v))
+          | Left (VarDef (n, v)) -> Hashtbl.add Expression.variables n (Expression.eval Expression.variables v)
+          | Right msg -> Printf.printf "%s%!\n" msg)
       with
-      | Function.Apply_error (e, g) ->
+      | Expression.Apply_error (e, g) ->
         Printf.printf "Error applying arguments to function. %d given and %d expected\n%!" g e;;
 
 let rec repeat channel =
