@@ -43,21 +43,22 @@ let ocaml_func_number = function
   | Arg5 _ -> 5 | Arg6 _ -> 6
   | Arg7 _ -> 7 | Arg8 _ -> 8;;
 
-;;
-
-                  
+;;         
 
 let functions: (string, function_t) Hashtbl.t = Hashtbl.create 10;;
 
 let variables: (string, float) Hashtbl.t = Hashtbl.create 10;;
-                  
+
+exception Unknown_variable of string;;
+
 let rec eval var_env =
   let apply_func (f: function_t) (a: arg_list_t): float = let len = List.length a in 
   let zip a b = 
+    let len_a = List.length a in 
     let rec aux a b acc = match a,b with
       | ([], []) -> acc
-      | (_,[]) -> raise (Apply_error (0,0))
-      | ([],_) -> raise (Apply_error (0,0))
+      | (_,[]) -> raise (Apply_error (len,len_a))
+      | ([],_) -> raise (Apply_error (len,len_a))
       | (x::xs, y::ys) -> aux xs ys ((x,y)::acc) in
     aux a b [] in
   match f, a with
@@ -74,13 +75,13 @@ let rec eval var_env =
   | Bop (op, l, r) -> bop_to_op op (eval var_env l) (eval var_env r)
   | Neg o -> Float.neg (eval var_env o)
   | Fun (f, o) -> apply_func (Hashtbl.find functions f) (List.map (eval var_env) (Array.to_list o))
-  | Var s -> Hashtbl.find var_env s
+  | Var s -> (try Hashtbl.find var_env s with Not_found -> raise (Unknown_variable s))  
   | Val v -> v;;
 
 let rec partial_eval = function
   | Bop (op, l, r) -> Bop (op, (partial_eval l), (partial_eval r))
   | Neg o -> Neg (partial_eval o)
-  | Fun (f, o) -> failwith "not implemented" (*apply_func (Hashtbl.find functions f) (Array.map (partial_eval) o)*)
+  | Fun (f, o) -> failwith "Not implemented" (*apply_func (Hashtbl.find functions f) (Array.map (partial_eval) o*)
   | Var s -> (match Hashtbl.find_opt variables s with
     | None -> Var s
     | Some v -> Val v)
@@ -195,14 +196,21 @@ let rec string_of_operation =
         | Var s -> s
         | Val v -> string_of_float v;;
 
+exception Missing_derivate of string;;
+
 let rec derivate var = function (* TODO: Add support for derivates *)
   | Bop (Add, l, r) -> Bop (Add, derivate var l, derivate var r)
   | Bop (Sub, l, r) -> Bop (Sub, derivate var l, derivate var r)
   | Bop (Mul, l, r) -> Bop (Mul, Bop (Mul, derivate var l, r), Bop (Mul, l, derivate var r))
   | Bop (Div, l, r) -> Bop (Div, Bop (Sub, Bop (Mul, derivate var l, r), Bop (Mul, l, derivate var r)), Bop (Pow, r, Val 2.0))
+  | Bop (Pow, Var s, Val v) when s = var -> Bop (Mul, Val v, Bop (Pow, Var s, Val (v-.1.0)))
   | Bop (Pow, l, r) -> Bop (Pow, derivate var l, derivate var r)
   | Neg o -> Neg (derivate var o)
-  | Fun (f, o) -> Fun (f,o)
+  | Fun (f, o) -> (match f, o with
+    | ("sin", o) -> Fun ("cos", o)
+    | ("cos", o) -> Fun ("sin", Array.map (fun x -> Neg x) o)
+    | ("ln", o) -> Bop (Div, derivate var o.(0), o.(0)) 
+    | _ -> raise (Missing_derivate f))
   | Var s -> if s = var then Val 1.0 else Var s
   | Val v -> Val 0.0;;
 
