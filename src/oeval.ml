@@ -49,19 +49,6 @@ let rec repeat channel =
   if continue then
     repeat channel;;
 
-(* let load_definitions file_defs: unit = 
-    let cont = ref true in
-    while !cont do
-      let optional_line, continue = Lexer.line file_defs in
-      (cont := continue;
-
-      (match optional_line with
-      | Some (Expression.FunDef (n, args, o)) -> Hashtbl.add Expression.functions n (Expression.FunDef (n, args, o))
-      | Some (Expression.VarDef (n, v)) -> Hashtbl.add Expression.variables n (Expression.VarDef (n, v))
-      | Some (Expression.Op o) -> Printf.printf "Warning, operations are not evaluated in load mode\n%!"
-      | None -> ()))
-    done;; *)
-
 let main =
   begin
     let speclist = [
