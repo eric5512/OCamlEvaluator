@@ -20,6 +20,10 @@ let read_key () =
 
 let rec read_line (): string =
   let remove (l: char list) (n: int) = List.filteri (fun i _ -> i <> n) l in
+  let rec insert (l: char list) (n: int) (ch: char) = match l with
+    | [] when n = 0 -> [ch]
+    | [] -> []
+    | x::xs -> if n = 0 then ch::l else x::(insert l (n - 1) ch) in
   let rec aux arrow acc hpos nch =
     let len = List.length acc in
     match read_key () with
@@ -42,7 +46,7 @@ let rec read_line (): string =
       (if nch <> 0 then
         (print_string "\027[D";
         flush Stdlib.stdout;
-        aux false (remove acc (nch - 1)) hpos (nch - 1))
+        aux false acc hpos (nch - 1))
       else
         aux false acc hpos nch)
     | Some '\n' -> (* Enter key *)
@@ -54,7 +58,7 @@ let rec read_line (): string =
         List.iter (fun x -> print_char ' ') acc; print_char ' ';
         print_char '\r';
         print_string (List.to_seq (remove acc (len - nch) |> List.rev) |> String.of_seq);
-        for i = 0 to (len - nch) do print_string "\027[D" done;
+        for i = 0 to (len - nch - 1) do print_string "\027[D" done;
         flush Stdlib.stdout;
         aux arrow (remove acc (len - nch)) hpos (nch - 1))
       else
@@ -62,11 +66,11 @@ let rec read_line (): string =
     | Some ch ->
       print_char ch;
       flush Stdlib.stdout;
-      aux arrow (ch::acc) hpos (nch+1)
+      aux arrow (insert acc (len - nch) ch) hpos (nch+1)
     | None -> acc in
   aux false [] 0 0 |> List.rev |> List.to_seq |> String.of_seq;;
 
 let () =
   enable_raw_mode ();
-  print_endline (read_line ());
+  Printf.printf "\nString %s\n%!" (read_line ());
   disable_raw_mode ();
