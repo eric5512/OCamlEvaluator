@@ -23,7 +23,13 @@ let rec read_line (): string =
   let rec insert (l: char list) (n: int) (ch: char) = match l with
     | [] when n = 0 -> [ch]
     | [] -> []
-    | x::xs -> if n = 0 then ch::l else x::(insert l (n - 1) ch) in
+    | x::xs -> if n = 0 then ch::l else x::(insert xs (n - 1) ch) in
+  let print_and_place str n = 
+    print_string (List.to_seq (List.rev str) |> String.of_seq);
+    for i = 0 to (List.length str - n - 1) do print_string "\027[D" done in
+  let clear str n = (print_char '\r';
+    List.iter (fun x -> print_char ' ') str; print_char ' ';
+    print_char '\r') in
   let rec aux arrow acc hpos nch =
     let len = List.length acc in
     match read_key () with
@@ -32,8 +38,17 @@ let rec read_line (): string =
     | Some '[' when arrow ->
       aux true acc hpos nch
     | Some 'A' when arrow -> (* Up arrow key *)
-      aux false acc hpos nch
+      if hpos < List.length !history then
+        let ns = List.nth (!history) (hpos) |> String.to_seq |> List.of_seq |> List.rev in
+        (clear acc nch;
+        print_and_place ns (List.length ns - 1);
+        print_string "\027[C";
+        flush Stdlib.stdout;
+        aux false ns (hpos + 1) (List.length ns - 1))
+      else
+        aux false acc hpos nch
     | Some 'B' when arrow -> (* Down arrow key *)
+      
       aux false acc hpos nch
     | Some 'C' when arrow -> (* Right arrow key *)
       (if nch <> len then
@@ -53,24 +68,32 @@ let rec read_line (): string =
       print_endline "";
       acc
     | Some '\x7F' -> (* Del key *)
+      let acc = remove acc (len - nch) in
       (if nch > 0 then
-        (print_char '\r';
-        List.iter (fun x -> print_char ' ') acc; print_char ' ';
-        print_char '\r';
-        print_string (List.to_seq (remove acc (len - nch) |> List.rev) |> String.of_seq);
-        for i = 0 to (len - nch - 1) do print_string "\027[D" done;
+        (clear acc nch;
+        print_and_place acc nch;
         flush Stdlib.stdout;
-        aux arrow (remove acc (len - nch)) hpos (nch - 1))
+        aux arrow acc hpos (nch - 1))
       else
         aux arrow acc hpos nch)
     | Some ch ->
-      print_char ch;
-      flush Stdlib.stdout;
-      aux arrow (insert acc (len - nch) ch) hpos (nch+1)
+      let acc = insert acc (len - nch) ch in
+      (if len = nch then 
+        (print_char ch;
+        flush Stdlib.stdout)
+      else
+        (clear acc nch;
+        print_and_place acc nch;
+        print_string "\027[C");
+        flush Stdlib.stdout);
+      aux arrow acc hpos (nch + 1)
     | None -> acc in
-  aux false [] 0 0 |> List.rev |> List.to_seq |> String.of_seq;;
+    let str = (aux false [] 0 0) |> List.rev |> List.to_seq |> String.of_seq in
+  history := str::!history;
+  str;;
 
 let () =
   enable_raw_mode ();
-  Printf.printf "\nString %s\n%!" (read_line ());
+  try while true do (read_line ()) |> print_endline done 
+      with _ -> disable_raw_mode ();
   disable_raw_mode ();
