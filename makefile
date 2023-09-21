@@ -4,7 +4,7 @@ MENHIR          := menhir
 
 MENHIRFLAGS     := --infer
 
-OCAMLBUILD      := ocamlbuild -I src -use-ocamlfind -use-menhir -menhir "$(MENHIR) $(MENHIRFLAGS)"
+OCAMLBUILD      := ocamlbuild -pkg unix -I src -use-ocamlfind -use-menhir -menhir "$(MENHIR) $(MENHIRFLAGS)"
 
 MAIN            := oeval
 

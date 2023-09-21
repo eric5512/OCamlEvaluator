@@ -2,6 +2,7 @@ let var = ref "";;
 let mode = ref "";;
 let file = ref "";;
 let load = ref "";;
+let erepl = ref false;;
 
 let process (line : string): (Expression.expr_t, string) Either.t =
   let linebuf = Lexing.from_string line in
@@ -56,6 +57,7 @@ let main =
     ("--file", Arg.Set_string file, "Selects the input file to evaluate");
     ("--mode", Arg.Symbol (["simplify"; "evaluate"; "derivate"], (fun s -> mode := s)), " Selects the mode");
     ("--load", Arg.Set_string load, "Selects a file to load definitions");
+    ("--erepl", Arg.Set erepl, "Selects a file to load definitions");
     ]
     in let usage_msg = "oeval --mode <mode>"
     in Arg.parse speclist print_endline usage_msg;
@@ -67,7 +69,11 @@ let main =
     
     let in_chnl = 
       if !file <> "" then 
-        open_in !file 
+        (if !erepl then
+          (print_endline "Warning: The enchanced repl mode is only available for stdin";
+          stdin)
+        else
+          open_in !file) 
       else 
         stdin in
       repeat (Lexing.from_channel in_chnl);
