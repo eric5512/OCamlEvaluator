@@ -110,9 +110,3 @@ let rec read_line (): string =
   else
     history := str::!history);
   str;;
-
-let () =
-  enable_raw_mode ();
-  try while true do (read_line ()) |> print_endline done 
-      with e -> (disable_raw_mode (); raise e |> ignore);
-  disable_raw_mode ();

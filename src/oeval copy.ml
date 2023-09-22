@@ -32,9 +32,11 @@ let execute_op op =
 let process (optional_line : string option) =
   match optional_line with
   | None ->
+      print_string "AAAAAAAAh";
       ()
   | Some line ->
       try
+        print_string "test";
         (match process line with
           | Left (Op op) -> execute_op op
           | Left (FunDef (n, args, v)) -> Hashtbl.add Expression.functions n (CFun (args, v))
@@ -54,24 +56,26 @@ let rec repeat channel =
 
 let rec repeat_erepl (): unit =
   try
-    (let (read_pipe, write_pipe) = Unix.pipe () in
+    let (read_pipe, write_pipe) = Unix.pipe () in
     let read_channel = Unix.in_channel_of_descr read_pipe in
     let write_channel = Unix.out_channel_of_descr write_pipe in
-    let cont = ref true in
-    let lexbuff = Lexing.from_channel read_channel in
-    try
-    while !cont do
-      (let str = Repl.read_line () ^ "\n" in
-      (output_string write_channel str);
-      let optional_line, continue = Lexer.line lexbuff in
-      print_int (String.length (Option.get optional_line));
-      flush stdout;
-      cont := continue;
-      process optional_line)
-    done
-    with
-      | End_of_file -> repeat lexbuff
-      | Sys_error msg -> Printf.eprintf "Error: %s\n" msg)
+    
+    let pid = Unix.fork () in
+    if pid = 0 then (
+      Unix.close read_pipe;
+      while true do
+        let str = Repl.read_line () ^ "\n" in
+        (output_string write_channel str)
+      done
+    ) else (
+      Unix.close write_pipe;
+      let lexbuff = Lexing.from_channel read_channel in
+      try
+        repeat lexbuff
+      with
+        | End_of_file -> repeat lexbuff
+        | Sys_error msg -> Printf.eprintf "Error: %s\n" msg;
+    )
   with
   | Unix.Unix_error (err, _, _) -> Printf.eprintf "Unix error: %s\n" (Unix.error_message err)
 
