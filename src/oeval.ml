@@ -55,23 +55,26 @@ let rec repeat channel =
 let rec repeat_erepl (): unit =
   try
     (let (read_pipe, write_pipe) = Unix.pipe () in
+    Unix.set_close_on_exec read_pipe;
+    Unix.set_close_on_exec write_pipe;
     let read_channel = Unix.in_channel_of_descr read_pipe in
     let write_channel = Unix.out_channel_of_descr write_pipe in
-    let cont = ref true in
-    let lexbuff = Lexing.from_channel read_channel in
-    try
-    while !cont do
-      (let str = Repl.read_line () ^ "\n" in
-      (output_string write_channel str);
-      let optional_line, continue = Lexer.line lexbuff in
-      print_int (String.length (Option.get optional_line));
-      flush stdout;
-      cont := continue;
-      process optional_line)
-    done
-    with
-      | End_of_file -> repeat lexbuff
-      | Sys_error msg -> Printf.eprintf "Error: %s\n" msg)
+    let rec repeat () = 
+      let cont = ref true in
+      let lexbuff = Lexing.from_channel read_channel in
+      try
+      while !cont do
+        (let str = Repl.read_line () ^ "\n" in
+        (output_string write_channel str);
+        flush write_channel;
+        let optional_line, continue = Lexer.line lexbuff in
+        cont := continue;
+        process optional_line)
+      done
+      with
+        | End_of_file -> repeat ()
+        | Sys_error msg -> Printf.eprintf "Error: %s\n" msg in 
+    repeat ();)
   with
   | Unix.Unix_error (err, _, _) -> Printf.eprintf "Unix error: %s\n" (Unix.error_message err)
 
