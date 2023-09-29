@@ -162,7 +162,13 @@ let simplify expr =
         | Neg no -> (no, true)
         | _ -> let (o, c) = aux o in (Neg o, c))
       
-      | Fun (f, o) -> let acc = Array.fold_left (fun (x1, y1) (x2, y2) -> ( x2::x1, y1 || y2)) ([], false) (Array.map aux o) in (Fun (f, fst acc |> Array.of_list), snd acc)
+      | Fun (f, o) -> 
+        let acc = 
+          Array.fold_left 
+            (fun (x1, y1) (x2, y2) -> ( x2::x1, y1 || y2))
+            ([], false)
+            (Array.map aux o) in 
+        (Fun (f, fst acc |> Array.of_list), snd acc)
       
       | _ as c -> (c, false) in
     let repeat = ref true in
@@ -196,6 +202,26 @@ let rec string_of_operation =
         | Var s -> s
         | Val v -> string_of_float v;;
 
+let op_eq (op1: operation_t) (op2: operation_t): bool = 
+  let rec zip l1 l2 = 
+    let rec aux l1 l2 acc = 
+    match l1,l2 with
+      | ([], []) -> List.rev acc
+      | (x::xs, y::ys) -> aux xs ys (aux xs ys ((x,y)::acc))
+      | _ -> failwith "Unreacheable op_eq" in
+    aux l1 l2 [] in
+  let rec aux op1 op2 = 
+    match op1, op2 with
+    | (Bop (op1, a1, b1), Bop (op2, a2, b2)) when op1 = op2 && op1 <> Sub && op1 <> Pow && op1 <> Div ->
+      (aux a1 b2) && (aux a2 b1)
+    | (Fun (a1,b1), Fun (a2,b2)) ->
+      (a1 = a2) && (Array.length b1 = Array.length b2) && (List.fold_left (fun x (y1, y2) -> x && (aux y1 y2)) true (zip (Array.to_list b1) (Array.to_list b2)))
+    | (a,b) when a = b -> 
+      true
+    | _ -> 
+      false in
+  aux op1 op2;;
+
 exception Missing_derivate of string;;
 
 let rec derivate var = function (* TODO: Add support for derivates *)
@@ -206,11 +232,16 @@ let rec derivate var = function (* TODO: Add support for derivates *)
   | Bop (Pow, Var s, Val v) when s = var -> Bop (Mul, Val v, Bop (Pow, Var s, Val (v-.1.0)))
   | Bop (Pow, l, r) -> Bop (Pow, derivate var l, derivate var r)
   | Neg o -> Neg (derivate var o)
-  | Fun (f, o) -> (match f, o with
+  | Fun (f, o) -> Bop (Mul, (match f, o with
     | ("sin", o) -> Fun ("cos", o)
-    | ("cos", o) -> Fun ("sin", Array.map (fun x -> Neg x) o)
-    | ("ln", o) -> Bop (Div, derivate var o.(0), o.(0)) 
-    | _ -> raise (Missing_derivate f))
+    | ("asin", o) -> Bop (Div, Val 1.0, Bop (Pow, Bop (Sub, Val 1.0, Bop (Pow, Var var, Val 2.0)), Val 0.5))
+    | ("cos", o) -> Neg (Fun ("sin", o))
+    | ("acos", o) -> Bop (Div, Neg (Val 1.0), Bop (Pow, Bop (Sub, Val 1.0, Bop (Pow, Var var, Val 2.0)), Val 0.5))
+    | ("tan", o) -> Bop (Div, Val 1.0, Bop (Pow, Fun ("cos", o), Val 2.0))
+    | ("ln", o) -> Bop (Div, Val 1.0, o.(0))
+    | ("log10", o) -> Bop (Div, Fun ("log10", [| Var "euler" |]), o.(0))
+    | ("log2", o) -> Bop (Div, Fun ("log2", [| Var "euler" |]), o.(0))
+    | _ -> raise (Missing_derivate f)), derivate var o.(0))
   | Var s -> if s = var then Val 1.0 else Var s
   | Val v -> Val 0.0;;
 
