@@ -248,6 +248,8 @@ let rec derivate var = function (* TODO: Add support for derivates *)
 type expr_t = Op of operation_t
 | FunDef of (string * (string list) * operation_t)
 | VarDef of (string * operation_t)
+| Der of (string * operation_t)
+| Sim of operation_t
 
 let variable_list: (string * float) list = [
   "pi", Float.pi;

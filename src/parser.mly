@@ -8,7 +8,7 @@ open Expression
 %token LPAR RPAR COMMA
 %token EOL
 
-%token ASSIGN DEF
+%token ASSIGN DEF DER SIM
 
 %left ADD SUB
 %left MUL DIV
@@ -29,6 +29,10 @@ expression:
     { FunDef (fn, vars, o) }
 | DEF var = ID ASSIGN o = operation
     { VarDef (var, o) }
+| SIM o = operation
+    { Sim o }
+| DER var = ID o = operation
+    { Der (var, o) }
 
 operation:
 | i = NUM
