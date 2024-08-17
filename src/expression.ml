@@ -43,8 +43,6 @@ let ocaml_func_number = function
   | Arg5 _ -> 5 | Arg6 _ -> 6
   | Arg7 _ -> 7 | Arg8 _ -> 8;;
 
-;;         
-
 let functions: (string, function_t) Hashtbl.t = Hashtbl.create 10;;
 
 let variables: (string, float) Hashtbl.t = Hashtbl.create 10;;
@@ -86,6 +84,12 @@ let rec partial_eval = function
     | None -> Var s
     | Some v -> Val v)
   | Val v -> Val v;;
+
+exception Conversion_nonimplemented of (string * string);;
+
+let convert (src: string) (dst: string) (value: float): float = match (src, dst) with
+  | ("dbm", "v") -> (sqrt (50./.1000.)) *. (Float.pow 10. (value/.20.))
+  | _ as pair -> raise (Conversion_nonimplemented pair);;
 
 let simplify expr = 
   let rec aux = function
@@ -179,7 +183,6 @@ let simplify expr =
     done;
     !op;;
 
-
 let operation_priority = function
   | Bop (op, _, _) -> bop_priority op
   | Neg _ -> 3
@@ -224,7 +227,7 @@ let op_eq (op1: operation_t) (op2: operation_t): bool =
 
 exception Missing_derivate of string;;
 
-let rec derivate var = function (* TODO: Add support for derivates *)
+let rec derivate var = function (* TODO: Add support for logarithmic derivates *)
   | Bop (Add, l, r) -> Bop (Add, derivate var l, derivate var r)
   | Bop (Sub, l, r) -> Bop (Sub, derivate var l, derivate var r)
   | Bop (Mul, l, r) -> Bop (Mul, Bop (Mul, derivate var l, r), Bop (Mul, l, derivate var r))
@@ -250,6 +253,7 @@ type expr_t = Op of operation_t
 | VarDef of (string * operation_t)
 | Der of (string * operation_t)
 | Sim of operation_t
+| Conv of (string * string * float)
 
 let variable_list: (string * float) list = [
   "pi", Float.pi;

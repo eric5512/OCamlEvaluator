@@ -8,7 +8,7 @@ open Expression
 %token LPAR RPAR COMMA
 %token EOL
 
-%token ASSIGN DEF DER SIM
+%token ASSIGN DEF DER SIM CONV
 
 %left ADD SUB
 %left MUL DIV
@@ -25,7 +25,7 @@ main:
 expression:
 | o = operation
     { Op o }
-| DEF fn = ID LPAR vars = separated_nonempty_list(COMMA, ID) RPAR ASSIGN o = operation
+| DEF fn = ID LPAR vars = separated_nonempty_list(COMMA, ID) RPAR o = operation
     { FunDef (fn, vars, o) }
 | DEF var = ID ASSIGN o = operation
     { VarDef (var, o) }
@@ -33,6 +33,8 @@ expression:
     { Sim o }
 | DER var = ID o = operation
     { Der (var, o) }
+| CONV src = ID dst = ID value = NUM
+    { Conv (src, dst, value)}
 
 operation:
 | i = NUM

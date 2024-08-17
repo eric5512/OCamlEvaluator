@@ -1,6 +1,6 @@
-x^3
-ln(x)
-sin(x)
-cos(x)
-asin(x)
-acos(x)
+DER x x^3
+DER x ln(x)
+DER x sin(x)
+DER x cos(x)
+DER x asin(x)
+DER x acos(x)

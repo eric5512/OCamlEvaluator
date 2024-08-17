@@ -1,5 +1,3 @@
-let var = ref "";;
-let mode = ref "evaluate";;
 let file = ref "";;
 let load = ref "";;
 let erepl = ref false;;
@@ -18,17 +16,6 @@ let process (line : string): (Expression.expr_t, string) Either.t =
   | e ->
     Right (Printexc.to_string e^"\n");;
 
-let execute_op op = 
-  Printf.fprintf stdout "%s\n%!"
-  (match !mode with
-  | "simplify" -> 
-    (Expression.simplify op |> Expression.string_of_operation)
-  | "evaluate" -> 
-    (Expression.eval Expression.variables op |> string_of_float)
-  | "derivate" -> 
-    (Expression.derivate !var op |> Expression.simplify |> Expression.string_of_operation)
-  | _ as m -> raise (Arg.Bad (m)));;
-
 let process (optional_line : string option) =
   match optional_line with
   | None ->
@@ -36,9 +23,12 @@ let process (optional_line : string option) =
   | Some line ->
       try
         (match process line with
-          | Left (Op op) -> execute_op op
+          | Left (Op op) -> Expression.eval Expression.variables op |> string_of_float |> Printf.fprintf stdout "%s\n%!"
           | Left (FunDef (n, args, v)) -> Hashtbl.add Expression.functions n (CFun (args, v))
           | Left (VarDef (n, v)) -> Hashtbl.add Expression.variables n (Expression.eval Expression.variables v)
+          | Left (Der (var, op)) -> Expression.derivate var op |> Expression.simplify |> Expression.string_of_operation |> Printf.fprintf stdout "%s\n%!"
+          | Left (Sim ex) -> Expression.simplify ex |> Expression.string_of_operation |> Printf.fprintf stdout "%s\n%!"
+          | Left (Conv (src, dst, value)) -> Expression.convert src dst value |> string_of_float |> Printf.fprintf stdout "%s\n%!"
           | Right msg -> Printf.printf "%s%!\n" msg)
       with
       | Expression.Apply_error (g, e) ->
@@ -81,9 +71,7 @@ let rec repeat_erepl (): unit =
 let main =
   begin
     let speclist = [
-    ("--var", Arg.Set_string var, "Selects the variable when mode is \"derivate\"");
     ("--file", Arg.Set_string file, "Selects the input file to evaluate");
-    ("--mode", Arg.Symbol (["simplify"; "evaluate"; "derivate"], (fun s -> mode := s)), " Selects the mode");
     ("--load", Arg.Set_string load, "Selects a file to load definitions");
     ("--erepl", Arg.Set erepl, "Enchanced repl mode");
     ]
