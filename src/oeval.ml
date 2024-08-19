@@ -23,18 +23,22 @@ let process (optional_line : string option) =
   | Some line ->
       try
         (match process line with
-          | Left (Op op) -> Expression.eval Expression.variables op |> string_of_float |> Printf.fprintf stdout "%s\n%!"
+          | Left (Op op) -> Eval.eval Expression.variables op |> string_of_float |> Printf.fprintf stdout "%s\n%!"
           | Left (FunDef (n, args, v)) -> Hashtbl.add Expression.functions n (CFun (args, v))
-          | Left (VarDef (n, v)) -> Hashtbl.add Expression.variables n (Expression.eval Expression.variables v)
-          | Left (Der (var, op)) -> Expression.derivate var op |> Expression.simplify |> Expression.string_of_operation |> Printf.fprintf stdout "%s\n%!"
-          | Left (Sim ex) -> Expression.simplify ex |> Expression.string_of_operation |> Printf.fprintf stdout "%s\n%!"
-          | Left (Conv (src, dst, value)) -> Expression.convert src dst value |> string_of_float |> Printf.fprintf stdout "%s\n%!"
+          | Left (VarDef (n, v)) -> Hashtbl.add Expression.variables n (Eval.eval Expression.variables v)
+          | Left (Der (var, op)) -> Derivate.derivate var op |> Simplify.simplify |> Expression.string_of_operation |> Printf.fprintf stdout "%s\n%!"
+          | Left (Sim ex) -> Simplify.simplify ex |> Expression.string_of_operation |> Printf.fprintf stdout "%s\n%!"
+          | Left (Conv (src, dst, value)) -> Convert.convert src dst value |> string_of_float |> Printf.fprintf stdout "%s\n%!"
           | Right msg -> Printf.printf "%s%!\n" msg)
       with
       | Expression.Apply_error (g, e) ->
-        Printf.printf "Error applying arguments to function. %d given and %d expected\n%!" g e
+        Printf.printf "Error applying arguments to function. %d given and %d expected\n%!\n" g e
       | Expression.Unknown_variable s ->
-        Printf.printf "Unknown variable: \"%s\"\n%!" s;;
+        Printf.printf "Unknown variable: \"%s\"\n%!\n" s
+      | Expression.Conversion_nonimplemented (f, t) ->
+        Printf.printf "Non existing conversion between \"%s\" and \"%s\"%!\n" f t
+      | Expression.Missing_derivate f ->
+        Printf.printf "Function \"%s\" is missing the derivate%!\n" f;;
 
 let rec repeat channel =
   let optional_line, continue = Lexer.line channel in
@@ -75,7 +79,7 @@ let main =
     ("--load", Arg.Set_string load, "Selects a file to load definitions");
     ("--erepl", Arg.Set erepl, "Enchanced repl mode");
     ]
-    in let usage_msg = "oeval --mode <mode>"
+    in let usage_msg = "oeval"
     in Arg.parse speclist print_endline usage_msg;
 
     if !load <> "" then 

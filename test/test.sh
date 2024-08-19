@@ -3,7 +3,7 @@ echo "-------------------------------"
 PROGRAM=./oeval
 
 # Test each mode
-for VAR in simplify evaluate derivate
+for VAR in simplify evaluate derivate convert
 do
     echo "Test $VAR"
 	$PROGRAM --file test/test_$VAR.in > test/test_$VAR.out
