@@ -1,6 +1,9 @@
 open Expression;;
 
-let rec derivate var = function (* TODO: Add support for logarithmic derivates *)
+(* TODO: Add support for logarithmic derivates *)
+(* TODO: Derivate user defined functions *)
+
+let rec derivate var = function
   | Bop (Add, l, r) -> Bop (Add, derivate var l, derivate var r)
   | Bop (Sub, l, r) -> Bop (Sub, derivate var l, derivate var r)
   | Bop (Mul, l, r) -> Bop (Mul, Bop (Mul, derivate var l, r), Bop (Mul, l, derivate var r))

@@ -23,6 +23,7 @@ type operation_t =  Bop of bop_t * operation_t * operation_t
 
 exception Apply_error of int * int;;
 exception Unknown_variable of string;;
+exception Unknown_function of string;;
 exception Conversion_nonimplemented of (string * string);;
 exception Missing_derivate of string;;
 

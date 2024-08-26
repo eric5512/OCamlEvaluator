@@ -23,15 +23,6 @@ let rec eval var_env =
     | (OFun f, _) -> raise (Apply_error (ocaml_func_number f, len)) in function
   | Bop (op, l, r) -> bop_to_op op (eval var_env l) (eval var_env r)
   | Neg o -> Float.neg (eval var_env o)
-  | Fun (f, o) -> apply_func (Hashtbl.find functions f) (List.map (eval var_env) (Array.to_list o))
+  | Fun (f, o) -> (try apply_func (Hashtbl.find functions f) (List.map (eval var_env) (Array.to_list o)) with Not_found -> raise (Unknown_function f))
   | Var s -> (try Hashtbl.find var_env s with Not_found -> raise (Unknown_variable s))  
   | Val v -> v;;
-
-let rec partial_eval = function
-  | Bop (op, l, r) -> Bop (op, (partial_eval l), (partial_eval r))
-  | Neg o -> Neg (partial_eval o)
-  | Fun (f, o) -> failwith "Not implemented" (*apply_func (Hashtbl.find functions f) (Array.map (partial_eval) o*)
-  | Var s -> (match Hashtbl.find_opt variables s with
-    | None -> Var s
-    | Some v -> Val v)
-  | Val v -> Val v;;
