@@ -25,6 +25,7 @@ exception Apply_error of int * int;;
 exception Unknown_variable of string;;
 exception Unknown_function of string;;
 exception Conversion_nonimplemented of (string * string);;
+exception Base_error of string;;
 exception Missing_derivate of string;;
 
 type arg_list_t = float list;;
@@ -100,7 +101,8 @@ type expr_t = Op of operation_t
 | VarDef of (string * operation_t)
 | Der of (string * operation_t)
 | Sim of operation_t
-| Conv of (string * string * float)
+| Conv of (string * string * operation_t)
+| Base of (string * float);;
 
 let variable_list: (string * float) list = [
   "pi", Float.pi;

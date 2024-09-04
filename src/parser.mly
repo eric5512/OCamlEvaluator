@@ -8,7 +8,7 @@ open Expression
 %token LPAR RPAR COMMA
 %token EOL
 
-%token ASSIGN DEF DER SIM CONV
+%token ASSIGN DEF DER SIM CONV BASE
 
 %left ADD SUB
 %left MUL DIV
@@ -33,8 +33,10 @@ expression:
     { Sim o }
 | DER var = ID o = operation
     { Der (var, o) }
-| CONV src = ID dst = ID value = NUM
-    { Conv (src, dst, value)}
+| CONV src = ID dst = ID o = operation
+    { Conv (src, dst, o)}
+| BASE b = ID n = NUM
+    { Base (b, n) }
 
 operation:
 | i = NUM

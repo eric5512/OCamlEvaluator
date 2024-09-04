@@ -2,6 +2,7 @@ open Expression;;
 
 (* TODO: Add support for logarithmic derivates *)
 (* TODO: Derivate user defined functions *)
+(* TODO: Partial derivates not working*)
 
 let rec derivate var = function
   | Bop (Add, l, r) -> Bop (Add, derivate var l, derivate var r)
@@ -21,5 +22,5 @@ let rec derivate var = function
     | ("log10", o) -> Bop (Div, Fun ("log10", [| Var "euler" |]), o.(0))
     | ("log2", o) -> Bop (Div, Fun ("log2", [| Var "euler" |]), o.(0))
     | _ -> raise (Missing_derivate f)), derivate var o.(0))
-  | Var s -> if s = var then Val 1.0 else Var s
+  | Var s -> if s = var then Val 1.0 else Val 0.0
   | Val v -> Val 0.0;;

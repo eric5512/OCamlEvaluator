@@ -23,12 +23,15 @@ let process (optional_line : string option) =
   | Some line ->
       try
         (match process line with
-          | Left (Op op) -> Eval.eval Expression.variables op |> string_of_float |> Printf.fprintf stdout "%s\n%!"
+          | Left (Op op) -> let res = Eval.eval Expression.variables op in 
+            Hashtbl.add Expression.variables "ans" res;
+            res |> string_of_float |> Printf.fprintf stdout "%s\n%!"
           | Left (FunDef (n, args, v)) -> Hashtbl.add Expression.functions n (CFun (args, v))
           | Left (VarDef (n, v)) -> Hashtbl.add Expression.variables n (Eval.eval Expression.variables v)
           | Left (Der (var, op)) -> Derivate.derivate var op |> Simplify.simplify |> Expression.string_of_operation |> Printf.fprintf stdout "%s\n%!"
           | Left (Sim ex) -> Simplify.simplify ex |> Expression.string_of_operation |> Printf.fprintf stdout "%s\n%!"
           | Left (Conv (src, dst, value)) -> Convert.convert src dst value |> string_of_float |> Printf.fprintf stdout "%s\n%!"
+          | Left (Base (base, num)) -> Base.base_change base num |> Printf.fprintf stdout "%s\n%!"
           | Right msg -> Printf.printf "%s%!\n" msg)
       with
       | Expression.Apply_error (g, e) ->
