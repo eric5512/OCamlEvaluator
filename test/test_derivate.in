@@ -4,3 +4,4 @@ DER x sin(x)
 DER x cos(x)
 DER x asin(x)
 DER x acos(x)
+DER x x*x

@@ -52,13 +52,19 @@ let functions: (string, function_t) Hashtbl.t = Hashtbl.create 10;;
 
 let variables: (string, float) Hashtbl.t = Hashtbl.create 10;;
 
-
 let operation_priority = function
   | Bop (op, _, _) -> bop_priority op
   | Neg _ -> 3
   | Fun _ -> 0
   | Var _ -> 0
   | Val _ -> 0;;
+
+let rec operation_contains (target: operation_t) (op: operation_t): bool = if op = target then true else match op with
+  | Bop (_, lop, rop) -> operation_contains target lop || operation_contains target rop
+  | Neg op -> operation_contains target op
+  | Fun (_, ops) -> Array.map (operation_contains target) ops |> Array.fold_left (||) false
+  | Var _ -> false
+  | Val _ -> false;;
 
 let rec string_of_operation = 
   let rec surround_par_if_higher a n = 

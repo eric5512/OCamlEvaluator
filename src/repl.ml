@@ -1,3 +1,4 @@
+(* https://github.com/Chris00/ANSITerminal/blob/master/src/ANSITerminal_unix.ml *)
 let history: string list ref = ref [];;
 
 let enable_raw_mode () =
@@ -48,7 +49,6 @@ let rec read_line (): string =
         let ns = get_hist (hpos + 1) in
         (clear acc nch;
         print_and_place ns (List.length ns - 1);
-        print_string "\027[C";
         flush Stdlib.stdout;
         saved := true;
         aux false ns (hpos + 1) (List.length ns - 1)))
@@ -59,7 +59,6 @@ let rec read_line (): string =
         let ns = List.nth (!history) (hpos - 1) |> String.to_seq |> List.of_seq |> List.rev in
         (clear acc nch;
         print_and_place ns (List.length ns - 1);
-        print_string "\027[C";
         flush Stdlib.stdout;
         aux false ns (hpos - 1) (List.length ns - 1))
       else

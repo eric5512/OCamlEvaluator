@@ -1,15 +1,15 @@
 open Expression;;
 
-(* TODO: Add support for logarithmic derivates *)
+(* TODO: Add support for logarithmic derivatives *)
 (* TODO: Derivate user defined functions *)
-(* TODO: Partial derivates not working*)
+(* TODO: Partial derivates not working *)
 
 let rec derivate var = function
   | Bop (Add, l, r) -> Bop (Add, derivate var l, derivate var r)
   | Bop (Sub, l, r) -> Bop (Sub, derivate var l, derivate var r)
-  | Bop (Mul, l, r) -> Bop (Mul, Bop (Mul, derivate var l, r), Bop (Mul, l, derivate var r))
+  | Bop (Mul, l, r) -> Bop (Add, Bop (Mul, derivate var l, r), Bop (Mul, l, derivate var r))
   | Bop (Div, l, r) -> Bop (Div, Bop (Sub, Bop (Mul, derivate var l, r), Bop (Mul, l, derivate var r)), Bop (Pow, r, Val 2.0))
-  | Bop (Pow, Var s, Val v) when s = var -> Bop (Mul, Val v, Bop (Pow, Var s, Val (v-.1.0)))
+  | Bop (Pow, Var s, r) when (s = var) && (operation_contains (Var s) r |> not) -> Bop (Mul, Bop (Mul, r, derivate var r), Bop (Pow, Var s, Bop (Sub, r, Val 1.))) (* TODO: Fix pow derivates https://brilliant.org/wiki/derivatives-of-exponential-functions/ *)
   | Bop (Pow, l, r) -> Bop (Pow, derivate var l, derivate var r)
   | Neg o -> Neg (derivate var o)
   | Fun (f, o) -> Bop (Mul, (match f, o with
