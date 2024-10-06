@@ -1,0 +1,8 @@
+(executable
+ (public_name oeval)
+ (name main)
+ (libraries unix oplot))
+
+(ocamllex lexer)
+(menhir
+ (modules parser))

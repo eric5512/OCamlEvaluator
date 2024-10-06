@@ -67,7 +67,7 @@ let rec operation_contains (target: operation_t) (op: operation_t): bool = if op
   | Val _ -> false;;
 
 let rec string_of_operation = 
-  let rec surround_par_if_higher a n = 
+  let surround_par_if_higher a n = 
     if operation_priority a <= operation_priority n then 
       "(" ^ (string_of_operation n) ^ ")" 
     else 
@@ -82,7 +82,7 @@ let rec string_of_operation =
         | Val v -> string_of_float v;;
 
 let op_eq (op1: operation_t) (op2: operation_t): bool = 
-  let rec zip l1 l2 = 
+  let zip l1 l2 = 
     let rec aux l1 l2 acc = 
     match l1,l2 with
       | ([], []) -> List.rev acc

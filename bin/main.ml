@@ -35,7 +35,7 @@ let process (optional_line : string option) =
           | Left (Solve (op, var, init)) -> let res = Solve.find_zero op var (Eval.eval Expression.variables init) 1e-10 in 
             Hashtbl.add Expression.variables "ans" res;
             Printf.fprintf stdout "%f\n%!" res
-          | Left (Plot (op, var, b, e)) -> Plot.plot op var b e
+          | Left (Plot (op, var, b, e)) -> Plot.plot op var (Eval.eval Expression.variables b) (Eval.eval Expression.variables e) |> ignore
           | Right msg -> Printf.printf "%s%!\n" msg)
       with
       | Expression.Apply_error (g, e) ->
@@ -53,7 +53,7 @@ let rec repeat channel =
   if continue then
     repeat channel;;
 
-let rec repeat_erepl (): unit =
+let repeat_erepl (): unit =
   try
     (let (read_pipe, write_pipe) = Unix.pipe () in
     Unix.set_close_on_exec read_pipe;
@@ -79,8 +79,10 @@ let rec repeat_erepl (): unit =
   with
   | Unix.Unix_error (err, _, _) -> Printf.eprintf "Unix error: %s\n" (Unix.error_message err)
 
-let main =
+let () =
   begin
+    Sys.set_signal Sys.sigint (Sys.Signal_handle (fun _ -> exit 0)); (* Handle the Ctrl-C signal *)
+
     let speclist = [
     ("--file", Arg.Set_string file, "Selects the input file to evaluate");
     ("--load", Arg.Set_string load, "Selects a file to load definitions");

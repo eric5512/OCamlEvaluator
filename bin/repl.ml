@@ -19,7 +19,7 @@ let read_key () =
   else
     Some (Bytes.get buf 0)
 
-let rec read_line (): string =
+let read_line (): string =
   let saved = ref false in
   let remove (l: char list) (n: int) = List.filteri (fun i _ -> i <> n) l in
   let get_hist pos = List.nth (!history) pos |> String.to_seq |> List.of_seq |> List.rev in
@@ -29,9 +29,9 @@ let rec read_line (): string =
     | x::xs -> if n = 0 then ch::l else x::(insert xs (n - 1) ch) in
   let print_and_place str n = 
     if List.length str <> 0 then (print_string (List.to_seq (List.rev str) |> String.of_seq);
-    for i = 0 to (List.length str - n - 1) do print_string "\027[D" done) in
-  let clear str n = (print_char '\r';
-    List.iter (fun x -> print_char ' ') str; print_char ' ';
+    for _ = 0 to (List.length str - n - 1) do print_string "\027[D" done) in
+  let clear str = (print_char '\r';
+    List.iter (fun _ -> print_char ' ') str; print_char ' ';
     print_char '\r') in
   let rec aux arrow acc hpos nch =
     let len = List.length acc in
@@ -47,7 +47,7 @@ let rec read_line (): string =
         else if hpos = 0 then
           (history := (List.to_seq acc |> String.of_seq)::(List.tl !history)));
         let ns = get_hist (hpos + 1) in
-        (clear acc nch;
+        (clear acc;
         print_and_place ns (List.length ns - 1);
         flush Stdlib.stdout;
         saved := true;
@@ -57,7 +57,7 @@ let rec read_line (): string =
     | Some 'B' when arrow -> (* Down arrow key *)
       if hpos > 0 then
         let ns = List.nth (!history) (hpos - 1) |> String.to_seq |> List.of_seq |> List.rev in
-        (clear acc nch;
+        (clear acc;
         print_and_place ns (List.length ns - 1);
         flush Stdlib.stdout;
         aux false ns (hpos - 1) (List.length ns - 1))
@@ -84,7 +84,7 @@ let rec read_line (): string =
     | Some '\x7F' -> (* Del key *)
       let acc = remove acc (len - nch) in
       (if nch > 0 then
-        (clear acc nch;
+        (clear acc;
         print_and_place acc nch;
         if nch <> len then print_string "\027[D";
         flush Stdlib.stdout;
@@ -97,7 +97,7 @@ let rec read_line (): string =
         (print_char ch;
         flush Stdlib.stdout)
       else
-        (clear acc nch;
+        (clear acc;
         print_and_place acc nch;
         print_string "\027[C";
         flush Stdlib.stdout));

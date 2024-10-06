@@ -14,13 +14,13 @@ let rec derivate var = function
   | Neg o -> Neg (derivate var o)
   | Fun (f, o) -> Bop (Mul, (match f, o with
     | ("sin", o) -> Fun ("cos", o)
-    | ("asin", o) -> Bop (Div, Val 1.0, Bop (Pow, Bop (Sub, Val 1.0, Bop (Pow, Var var, Val 2.0)), Val 0.5))
+    | ("asin", _) -> Bop (Div, Val 1.0, Bop (Pow, Bop (Sub, Val 1.0, Bop (Pow, Var var, Val 2.0)), Val 0.5))
     | ("cos", o) -> Neg (Fun ("sin", o))
-    | ("acos", o) -> Bop (Div, Neg (Val 1.0), Bop (Pow, Bop (Sub, Val 1.0, Bop (Pow, Var var, Val 2.0)), Val 0.5))
+    | ("acos", _) -> Bop (Div, Neg (Val 1.0), Bop (Pow, Bop (Sub, Val 1.0, Bop (Pow, Var var, Val 2.0)), Val 0.5))
     | ("tan", o) -> Bop (Div, Val 1.0, Bop (Pow, Fun ("cos", o), Val 2.0))
     | ("ln", o) -> Bop (Div, Val 1.0, o.(0))
     | ("log10", o) -> Bop (Div, Fun ("log10", [| Var "euler" |]), o.(0))
     | ("log2", o) -> Bop (Div, Fun ("log2", [| Var "euler" |]), o.(0))
     | _ -> raise (Missing_derivate f)), derivate var o.(0))
   | Var s -> if s = var then Val 1.0 else Val 0.0
-  | Val v -> Val 0.0;;
+  | Val _ -> Val 0.0;;
