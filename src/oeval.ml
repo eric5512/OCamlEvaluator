@@ -32,6 +32,10 @@ let process (optional_line : string option) =
           | Left (Sim ex) -> Simplify.simplify ex |> Expression.string_of_operation |> Printf.fprintf stdout "%s\n%!"
           | Left (Conv (src, dst, value)) -> Convert.convert src dst value |> string_of_float |> Printf.fprintf stdout "%s\n%!"
           | Left (Base (base, num)) -> Base.base_change base num |> Printf.fprintf stdout "%s\n%!"
+          | Left (Solve (op, var, init)) -> let res = Solve.find_zero op var (Eval.eval Expression.variables init) 1e-10 in 
+            Hashtbl.add Expression.variables "ans" res;
+            Printf.fprintf stdout "%f\n%!" res
+          | Left (Plot (op, var, b, e)) -> Plot.plot op var b e
           | Right msg -> Printf.printf "%s%!\n" msg)
       with
       | Expression.Apply_error (g, e) ->

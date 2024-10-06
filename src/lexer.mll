@@ -27,12 +27,18 @@ and token = parse
     { CONV }
 | "BASE"
     { BASE }
+| "SOLVE"
+    { SOLVE }
+| "PLOT"
+    { PLOT }
 | "0b" ['0' '1']+ as n
     { NUM (float_of_int (int_of_string n)) }
 | "0o" ['0'-'7']+ as n
     { NUM (float_of_int (int_of_string n)) }
 | "0x" ['0'-'9' 'a'-'f' 'A'-'F']+ as n
     { NUM (float_of_int (int_of_string n)) }
+| ['0'-'9']+ '.'? ['0'-'9']* 'e' '-'? ['0'-'9']+ as f
+    { NUM (float_of_string f) }
 | ['0'-'9']+ '.'? ['0'-'9']* as f
     { NUM (float_of_string f) }
 | ['a'-'z' 'A'-'Z' '_'] ['a'-'z' 'A'-'Z' '_' '0'-'9']* as s 
@@ -56,4 +62,7 @@ and token = parse
 | ','
     { COMMA }
 | _
-    { raise (Error (Printf.sprintf "At offset %d: unexpected character.\n" (Lexing.lexeme_start lexbuf))) }
+    { 
+    let pos = Lexing.lexeme_start lexbuf in 
+        raise (Error (Printf.sprintf "At offset %d: unexpected character: %c.\n" pos (Lexing.lexeme_char lexbuf pos))) 
+    }

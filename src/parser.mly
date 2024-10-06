@@ -8,7 +8,7 @@ open Expression
 %token LPAR RPAR COMMA
 %token EOL
 
-%token ASSIGN DEF DER SIM CONV BASE
+%token ASSIGN DEF DER SIM CONV BASE SOLVE PLOT
 
 %left ADD SUB
 %left MUL DIV
@@ -31,12 +31,18 @@ expression:
     { VarDef (var, o) }
 | SIM o = operation
     { Sim o }
-| DER var = ID o = operation
+| DER o = operation var = ID
     { Der (var, o) }
 | CONV src = ID dst = ID o = operation
     { Conv (src, dst, o)}
 | BASE b = ID n = NUM
     { Base (b, n) }
+| SOLVE o = operation v = ID i = operation
+    { Solve (o, v, i) }
+| SOLVE o = operation v = ID
+    { Solve (o, v, Val 0.) }
+| PLOT o = operation v = ID b = operation e = operation
+    { Plot (o, v, b, e) }
 
 operation:
 | i = NUM
