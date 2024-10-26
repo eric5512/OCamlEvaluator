@@ -17,7 +17,7 @@ open Expression
 %start <expr_t> main
 
 %%
-
+(* Solve shift/reduce conflicts *)
 main:
 | e = expression EOL
     { e }

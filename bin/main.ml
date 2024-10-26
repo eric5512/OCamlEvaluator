@@ -81,7 +81,7 @@ let repeat_erepl (): unit =
 
 let () =
   begin
-    Sys.set_signal Sys.sigint (Sys.Signal_handle (fun _ -> exit 0)); (* Handle the Ctrl-C signal *)
+    Sys.set_signal Sys.sigint (Sys.Signal_handle (fun _ -> Repl.disable_raw_mode (); exit 0)); (* Handle the Ctrl-C signal *)
 
     let speclist = [
     ("--file", Arg.Set_string file, "Selects the input file to evaluate");

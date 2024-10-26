@@ -1,15 +1,16 @@
 open Expression;;
 
 let rec eval var_env =
-  let apply_func (f: function_t) (a: arg_list_t): float = let len = List.length a in 
-  let zip a b = 
-    let len_a = List.length a in 
-    let rec aux a b acc = match a,b with
-      | ([], []) -> acc
-      | (_,[]) -> raise (Apply_error (len,len_a))
-      | ([],_) -> raise (Apply_error (len,len_a))
-      | (x::xs, y::ys) -> aux xs ys ((x,y)::acc) in
-    aux a b [] in
+  let apply_func (f: function_t) (a: arg_list_t): float = 
+    let len = List.length a in 
+    let zip a b = 
+      let len_a = List.length a in 
+      let rec aux a b acc = match a,b with
+        | ([], []) -> acc
+        | (_,[]) -> raise (Apply_error (len,len_a))
+        | ([],_) -> raise (Apply_error (len,len_a))
+        | (x::xs, y::ys) -> aux xs ys ((x,y)::acc) in
+      aux a b [] in
   match f, a with
     | (OFun (Arg1 f), [x1]) -> f x1
     | (OFun (Arg2 f), [x1; x2]) -> f x1 x2
