@@ -26,7 +26,7 @@ Flags:
 * **SIM**: Simplify. Simplifies the entered expression
   * Example: ```SIM x*0```
 * **CONV**: Unit conversion. Converts from the first specified unit to the second one 
-  * Example: ```CONV BIN 0xFF```
+  * Example: ```CONV inch cm 10```
 * **BASE**: Base conversion. Converts the number to the specified base (BIN, OCT, HEX)
   * Example: ```BASE BIN 0xFF```
 * **SOLVE**: Solves the expression == 0 for the specified variable
