@@ -1,3 +1,5 @@
+(* TODO: Implement help command for info about other commands *)
+
 let file = ref "";;
 let load = ref "";;
 let erepl = ref false;;
@@ -36,9 +38,11 @@ let process (optional_line : string option) =
             Hashtbl.add Expression.variables "ans" res;
             Printf.fprintf stdout "%f\n%!" res
           | Left (Plot (op, var, b, e)) -> Plot.plot op var (Eval.eval Expression.variables b) (Eval.eval Expression.variables e) |> ignore
-          | Right msg -> Printf.printf "%s%!\n" msg)
+          | Left (Listc) -> Printf.printf "%s%!\n" (Listc.list ())
+          | Right msg -> Printf.printf "%s%!\n" msg);
+        flush stdout
       with
-      | Expression.Apply_error (g, e) ->
+      | Expression.Apply_error (e, g) ->
         Printf.printf "Error applying arguments to function. %d given and %d expected\n%!\n" g e
       | Expression.Unknown_variable s ->
         Printf.printf "Unknown variable: \"%s\"\n%!\n" s
@@ -81,7 +85,7 @@ let repeat_erepl (): unit =
 
 let () =
   begin
-    Sys.set_signal Sys.sigint (Sys.Signal_handle (fun _ -> Repl.disable_raw_mode (); exit 0)); (* Handle the Ctrl-C signal *)
+    Sys.set_signal Sys.sigint (Sys.Signal_handle (fun _ -> Repl.disable_raw_mode (); print_endline ""; exit 0)); (* Handle the Ctrl-C signal *)
 
     let speclist = [
     ("--file", Arg.Set_string file, "Selects the input file to evaluate");

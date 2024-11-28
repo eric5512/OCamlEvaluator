@@ -35,9 +35,7 @@ type ocaml_function_t = Arg1 of (float -> float)
   | Arg3 of (float -> float -> float -> float)
   | Arg4 of (float -> float -> float -> float -> float)
   | Arg5 of (float -> float -> float -> float -> float -> float)
-  | Arg6 of (float -> float -> float -> float -> float -> float -> float)
-  | Arg7 of (float -> float -> float -> float -> float -> float -> float -> float)
-  | Arg8 of (float -> float -> float -> float -> float -> float -> float -> float -> float);;
+  | Arg6 of (float -> float -> float -> float -> float -> float -> float);;
 
 type function_t = OFun of ocaml_function_t
   | CFun of (string list * operation_t);;
@@ -45,8 +43,7 @@ type function_t = OFun of ocaml_function_t
 let ocaml_func_number = function
   | Arg1 _ -> 1 | Arg2 _ -> 2
   | Arg3 _ -> 3 | Arg4 _ -> 4
-  | Arg5 _ -> 5 | Arg6 _ -> 6
-  | Arg7 _ -> 7 | Arg8 _ -> 8;;
+  | Arg5 _ -> 5 | Arg6 _ -> 6;;
 
 let functions: (string, function_t) Hashtbl.t = Hashtbl.create 10;;
 
@@ -110,7 +107,8 @@ type expr_t = Op of operation_t
 | Conv of (string * string * operation_t)
 | Base of (string * float)
 | Solve of (operation_t * string * operation_t)
-| Plot of (operation_t * string * operation_t * operation_t);;
+| Plot of (operation_t * string * operation_t * operation_t)
+| Listc;;
 
 let variable_list: (string * float) list = [
   "pi", Float.pi;

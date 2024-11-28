@@ -1,4 +1,4 @@
-(* https://github.com/Chris00/ANSITerminal/blob/master/src/ANSITerminal_unix.ml *)
+(* ANSI codes documentation: https://github.com/Chris00/ANSITerminal/blob/master/src/ANSITerminal_unix.ml *)
 
 type history = string list ref;;
 let history: history = ref [];;
@@ -46,76 +46,94 @@ let read_line (): string =
     | [] when n = 0 -> [ch]
     | [] -> []
     | x::xs -> if n = 0 then ch::l else x::(insert xs (n - 1) ch) in
+  let backward n = Printf.sprintf "\027[%dD" n |> print_string in
+  let forward n = Printf.sprintf "\027[%dC" n |> print_string in
+  let goto n = Printf.sprintf "\027[%dG" n |> print_string in
   let print_and_place str n = 
-    if List.length str <> 0 then (print_string (List.to_seq (List.rev str) |> String.of_seq);
-    for _ = 0 to (List.length str - n - 1) do print_string "\027[D" done) in
-  let clear str = (print_char '\r';
-    List.iter (fun _ -> print_char ' ') str; print_char ' ';
-    print_char '\r') in
-  let rec aux arrow acc hpos nch =
+    (if List.length str <> 0 then (print_string (List.to_seq (List.rev str) |> String.of_seq);
+    goto 0;
+    if n > 0 then forward n)) in
+  let clear () = print_string "\027[2K\027[0G" in
+  let rec aux escape acc hpos nch =
     let len = List.length acc in
     match read_key () with
     | Some '\027' ->
       aux true acc hpos nch
-    | Some '[' when arrow ->
+    | Some '[' when escape ->
       aux true acc hpos nch
-    | Some 'A' when arrow -> (* Up arrow key *)
+    | Some 'A' when escape -> (* Up escape key *)
       if hpos < List.length !history - 1 then
         (let ns = get_hist (hpos + 1) in
-        (clear acc;
-        print_and_place ns (List.length ns - 1);
+        let len = List.length ns in
+        (clear ();
+        print_and_place ns len;
         flush Stdlib.stdout;
-        aux false ns (hpos + 1) (List.length ns - 1)))
+        aux false ns (hpos + 1) len))
       else
         aux false acc hpos nch
-    | Some 'B' when arrow -> (* Down arrow key *)
+    | Some 'B' when escape -> (* Down escape key *)
       if hpos > 0 then
         let ns = get_hist (hpos - 1) in
-        (clear acc;
-        print_and_place ns (List.length ns - 1);
+        let len = List.length ns in
+        (clear ();
+        print_and_place ns len;
         flush Stdlib.stdout;
-        aux false ns (hpos - 1) (List.length ns - 1))
+        aux false ns (hpos - 1) len)
       else
-        (
-        aux false acc hpos nch)
-    | Some 'C' when arrow -> (* Right arrow key *)
+        (aux false acc hpos nch)
+    | Some 'C' when escape -> (* Right arrow key *)
       (if nch <> len then
-        (print_string "\027[C";
+        (forward 1;
         flush Stdlib.stdout;
         aux false acc hpos (nch + 1))
       else
         aux false acc hpos nch)
-    | Some 'D' when arrow -> (* Left arrow key *)
+    | Some 'D' when escape -> (* Left arrow key *)
       (if nch <> 0 then
-        (print_string "\027[D";
+        (backward 1;
         flush Stdlib.stdout;
         aux false acc hpos (nch - 1))
       else
         aux false acc hpos nch)
+    | Some 'F' when escape -> (* END key *)
+      (let pos = List.length acc in
+        goto (pos+1);
+        flush Stdlib.stdout;
+        aux false acc hpos pos)
+    | Some 'H' when escape -> (* BEG key *)
+      (goto 0;
+      flush Stdlib.stdout;
+      aux false acc hpos 0)
+    | Some '3' when escape -> (* DEL key *)
+      read_key () |> ignore;
+      let acc = remove acc (len - nch - 1) in
+      (if nch < len then
+        (clear ();
+        print_and_place acc nch;
+        flush Stdlib.stdout));
+      aux false acc hpos nch
     | Some '\n' -> (* Enter key *)
       print_endline "";
       acc
-    | Some '\x7F' -> (* Del key *)
+    | Some '\x7F' -> (* Backspace key *)
       let acc = remove acc (len - nch) in
       (if nch > 0 then
-        (clear acc;
-        print_and_place acc nch;
-        if nch <> len then print_string "\027[D";
+        (clear ();
+        print_and_place acc (nch - 1);
         flush Stdlib.stdout;
-        aux arrow acc hpos (nch - 1))
+        aux escape acc hpos (nch - 1))
       else
-        aux arrow acc hpos nch)
+        aux escape acc hpos nch)
     | Some ch ->
       let acc = insert acc (len - nch) ch in
       (if len = nch then 
         (print_char ch;
         flush Stdlib.stdout)
       else
-        (clear acc;
-        print_and_place acc nch;
-        print_string "\027[C";
+        (clear ();
+        print_and_place acc (nch + 1);
         flush Stdlib.stdout));
-      aux arrow acc hpos (nch + 1)
+      aux escape acc hpos (nch + 1)
     | None -> acc in
   let str = (aux false [] (-1) 0) |> List.rev |> List.to_seq |> String.of_seq in
   add_to_history str;

@@ -31,6 +31,8 @@ and token = parse
     { SOLVE }
 | "PLOT"
     { PLOT }
+| "LIST"
+    { LIST }
 | "0b" ['0' '1']+ as n
     { NUM (float_of_int (int_of_string n)) }
 | "0o" ['0'-'7']+ as n

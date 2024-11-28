@@ -8,7 +8,7 @@ open Expression
 %token LPAR RPAR COMMA
 %token EOL
 
-%token ASSIGN DEF DER SIM CONV BASE SOLVE PLOT
+%token ASSIGN DEF DER SIM CONV BASE SOLVE PLOT LIST
 
 %left ADD SUB
 %left MUL DIV
@@ -17,7 +17,7 @@ open Expression
 %start <expr_t> main
 
 %%
-(* Solve shift/reduce conflicts *)
+(* TODO: Solve shift/reduce conflicts *)
 main:
 | e = expression EOL
     { e }
@@ -25,6 +25,8 @@ main:
 expression:
 | o = operation
     { Op o }
+| LIST
+    { Listc }
 | DEF fn = ID LPAR vars = separated_nonempty_list(COMMA, ID) RPAR o = operation
     { FunDef (fn, vars, o) }
 | DEF var = ID ASSIGN o = operation

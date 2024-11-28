@@ -1,5 +1,7 @@
 open Expression;;
 
+(* TODO: Rethink convert, should be able to transform between all units of same physical magnitude *)
+
 let convert (src: string) (dst: string) (operation: operation_t): float = let value = Eval.eval variables operation in
 match (String.lowercase_ascii src, String.lowercase_ascii dst) with
   | ("dbm", "v") -> (sqrt (50./.1000.)) *. (Float.pow 10. (value/.20.))

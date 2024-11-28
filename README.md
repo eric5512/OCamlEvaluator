@@ -33,3 +33,5 @@ Flags:
   * Example: ```SOLVE 2*x+1 x```
 * **PLOT**: Plots the function in a new window as a function of the specified variable on a specified range
   * Example: ```PLOT sin(x) x 0 2*pi```
+* **LIST**: List all the variables and functions defined at that moment
+  * Example: ```LIST```

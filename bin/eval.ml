@@ -18,8 +18,6 @@ let rec eval var_env =
     | (OFun (Arg4 f), [x1; x2; x3; x4]) -> f x1 x2 x3 x4
     | (OFun (Arg5 f), [x1; x2; x3; x4; x5]) -> f x1 x2 x3 x4 x5
     | (OFun (Arg6 f), [x1; x2; x3; x4; x5; x6]) -> f x1 x2 x3 x4 x5 x6
-    | (OFun (Arg7 f), [x1; x2; x3; x4; x5; x6; x7]) -> f x1 x2 x3 x4 x5 x6 x7
-    | (OFun (Arg8 f), [x1; x2; x3; x4; x5; x6; x7; x8]) -> f x1 x2 x3 x4 x5 x6 x7 x8
     | (CFun (args, op), _) -> eval (Hashtbl.of_seq (zip args a |> List.to_seq)) op
     | (OFun f, _) -> raise (Apply_error (ocaml_func_number f, len)) in function
   | Bop (op, l, r) -> bop_to_op op (eval var_env l) (eval var_env r)
