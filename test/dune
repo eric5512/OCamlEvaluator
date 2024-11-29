@@ -1,2 +1,4 @@
-(test
- (name test_OCamlEvaluator))
+(rule
+ (alias runtest)
+ (deps test.sh) ; Ensure the script is a dependency
+ (action (run ./test.sh)))

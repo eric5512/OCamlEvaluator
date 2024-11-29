@@ -1,5 +1,3 @@
-(* TODO: Implement help command for info about other commands *)
-
 let file = ref "";;
 let load = ref "";;
 let erepl = ref false;;
@@ -46,8 +44,10 @@ let process (optional_line : string option) =
         Printf.printf "Error applying arguments to function. %d given and %d expected\n%!\n" g e
       | Expression.Unknown_variable s ->
         Printf.printf "Unknown variable: \"%s\"\n%!\n" s
-      | Expression.Conversion_nonimplemented (f, t) ->
-        Printf.printf "Non existing conversion between \"%s\" and \"%s\"%!\n" f t
+      | Expression.Incompatible_magnitudes (m1, m2) ->
+        Printf.printf "Non existing conversion between \"%s\" and \"%s\"%!\n" m1 m2
+      | Expression.Unit_nonimplemented u ->
+          Printf.printf "Non existing unit \"%s\"%!\n" u
       | Expression.Missing_derivate f ->
         Printf.printf "Function \"%s\" is missing the derivate%!\n" f;;
 

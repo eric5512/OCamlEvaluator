@@ -1,7 +1,7 @@
-DER x x^3
-DER x ln(x)
-DER x sin(x)
-DER x cos(x)
-DER x asin(x)
-DER x acos(x)
-DER x x*x
+DER x^3 x
+DER ln(x) x
+DER sin(x) x
+DER cos(x) x
+DER asin(x) x
+DER acos(x) x
+DER x*x x

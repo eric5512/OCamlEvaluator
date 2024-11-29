@@ -24,7 +24,8 @@ type operation_t =  Bop of bop_t * operation_t * operation_t
 exception Apply_error of int * int;;
 exception Unknown_variable of string;;
 exception Unknown_function of string;;
-exception Conversion_nonimplemented of (string * string);;
+exception Unit_nonimplemented of string;;
+exception Incompatible_magnitudes of string * string;;
 exception Base_error of string;;
 exception Missing_derivate of string;;
 
@@ -44,10 +45,6 @@ let ocaml_func_number = function
   | Arg1 _ -> 1 | Arg2 _ -> 2
   | Arg3 _ -> 3 | Arg4 _ -> 4
   | Arg5 _ -> 5 | Arg6 _ -> 6;;
-
-let functions: (string, function_t) Hashtbl.t = Hashtbl.create 10;;
-
-let variables: (string, float) Hashtbl.t = Hashtbl.create 10;;
 
 let operation_priority = function
   | Bop (op, _, _) -> bop_priority op
@@ -111,13 +108,24 @@ type expr_t = Op of operation_t
 | Listc;;
 
 let variable_list: (string * float) list = [
+  (* Math constants *)
   "pi", Float.pi;
   "inf", Float.infinity;
   "euler", 2.718281828459045;
   "epsilon", Float.epsilon;
+  "phi", 1.618033988749895; (* Golden ratio *)
+
+  (* Physical constants *)
+  "c", 299792458.;          (* Speed of light in vacuum (m/s) *)
+  "g", 9.80665;             (* Standard gravity (m/s^2) *)
+  "h", 6.62607015e-34;      (* Planck's constant (J*s) *)
+  "k", 1.380649e-23;        (* Boltzmann constant (J/K) *)
+  "e", 1.602176634e-19;     (* Elementary charge (C) *)
+  "mu0", 1.2566370614e-6;   (* Vacuum permeability (H/m) *)
 ];;
   
 let function_list: (string * function_t) list = [
+  (* Trigonometric Functions *)
   "sin", OFun (Arg1 Float.sin);
   "cos", OFun (Arg1 Float.cos);
   "tan", OFun (Arg1 Float.tan);
@@ -125,21 +133,42 @@ let function_list: (string * function_t) list = [
   "acos", OFun (Arg1 Float.acos);
   "atan", OFun (Arg1 Float.atan);
 
+  (* Hyperbolic Functions *)
   "sinh", OFun (Arg1 Float.sinh);
   "cosh", OFun (Arg1 Float.cosh);
   "tanh", OFun (Arg1 Float.tanh);
   "asinh", OFun (Arg1 Float.asinh);
   "acosh", OFun (Arg1 Float.acosh);
   "atanh", OFun (Arg1 Float.atanh);
-  
+
+  (* Logarithmic Functions *)
   "log10", OFun (Arg1 Float.log10);
   "log2", OFun (Arg1 Float.log2);
   "ln", OFun (Arg1 Float.log);
 
-  "mod", OFun (Arg2 Float.rem);
-  "sqrt", OFun (Arg1 Float.sqrt);
-  "abs", OFun (Arg1 Float.abs);
+  (* Exponential Functions *)
+  "exp", OFun (Arg1 Float.exp);                   (* e^x *)
+  "pow", OFun (Arg2 Float.pow);                   (* x^y *)
+  
+  (* Rounding Functions *)
+  "floor", OFun (Arg1 Float.floor);               (* Rounds down *)
+  "ceil", OFun (Arg1 Float.ceil);                 (* Rounds up *)
+  "round", OFun (Arg1 Float.round);               (* Rounds to nearest integer *)
+
+  (* Absolute and Modular Arithmetic *)
+  "mod", OFun (Arg2 Float.rem);                  (* Remainder of division *)
+  "abs", OFun (Arg1 Float.abs);                  (* Absolute value *)
+
+  (* Root and Power Functions *)
+  "sqrt", OFun (Arg1 Float.sqrt);               (* Square root *)
+  "cbrt", OFun (Arg1 Float.cbrt);               (* Square root *)
+
+  (* Utility Functions *)
+  "min", OFun (Arg2 Float.min);                 (* Minimum of two numbers *)
+  "max", OFun (Arg2 Float.max);                 (* Maximum of two numbers *)
+  "hypot", OFun (Arg2 Float.hypot);             (* sqrt(x^2 + y^2) *)
 ];;
 
-let () = Hashtbl.add_seq functions (List.to_seq function_list);
-         Hashtbl.add_seq variables (List.to_seq variable_list);;
+let functions: (string, function_t) Hashtbl.t = Hashtbl.of_seq (List.to_seq function_list);;
+
+let variables: (string, float) Hashtbl.t = Hashtbl.of_seq (List.to_seq variable_list);;
