@@ -24,16 +24,16 @@ let process (optional_line : string option) =
       try
         (match process line with
           | Left (Op op) -> let res = Eval.eval Expression.variables op in 
-            Hashtbl.add Expression.variables "ans" res;
+            Expression.add_var "ans" res;
             res |> string_of_float |> Printf.fprintf stdout "%s\n%!"
           | Left (FunDef (n, args, v)) -> Hashtbl.add Expression.functions n (CFun (args, v))
-          | Left (VarDef (n, v)) -> Hashtbl.add Expression.variables n (Eval.eval Expression.variables v)
+          | Left (VarDef (n, v)) -> Expression.add_var n (Eval.eval Expression.variables v)
           | Left (Der (var, op)) -> Derivate.derivate var op |> Simplify.simplify |> Expression.string_of_operation |> Printf.fprintf stdout "%s\n%!"
           | Left (Sim ex) -> Simplify.simplify ex |> Expression.string_of_operation |> Printf.fprintf stdout "%s\n%!"
           | Left (Conv (src, dst, value)) -> Convert.convert src dst value |> string_of_float |> Printf.fprintf stdout "%s\n%!"
           | Left (Base (base, num)) -> Base.base_change base num |> Printf.fprintf stdout "%s\n%!"
           | Left (Solve (op, var, init)) -> let res = Solve.find_zero op var (Eval.eval Expression.variables init) 1e-10 in 
-            Hashtbl.add Expression.variables "ans" res;
+          Expression.add_var "ans" res;
             Printf.fprintf stdout "%f\n%!" res
           | Left (Plot (op, var, b, e)) -> Plot.plot op var (Eval.eval Expression.variables b) (Eval.eval Expression.variables e) |> ignore
           | Left (Listc) -> Printf.printf "%s%!\n" (Listc.list ())
@@ -90,10 +90,12 @@ let () =
     let speclist = [
     ("--file", Arg.Set_string file, "Selects the input file to evaluate");
     ("--load", Arg.Set_string load, "Selects a file to load definitions");
-    ("--erepl", Arg.Set erepl, "Enchanced repl mode");
+    ("--erepl", Arg.Set erepl, "Disable Enchanced repl mode");
     ]
     in let usage_msg = "oeval"
     in Arg.parse speclist print_endline usage_msg;
+
+    erepl := not !erepl;
 
     if !load <> "" then 
       open_in !load 
@@ -102,10 +104,7 @@ let () =
     
     let in_chnl = 
       if !file <> "" then 
-        ((if !erepl then
-          (print_endline "Warning: The enchanced repl mode is only available for stdin");
-          erepl := false
-        );
+        ((if !erepl then erepl := false);
         open_in !file) 
       else 
         stdin in

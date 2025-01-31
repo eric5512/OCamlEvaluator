@@ -1,5 +1,6 @@
 open Expression;;
 
+(* TODO: Add optional padding argument and two's complement feature *)
 let base_change (base: string) (num: float): string = 
   let int_num = int_of_float num in
   let rec bin_rep num acc = if num == 0 then acc else bin_rep (num lsr 1) ((num mod 2 + 48 |> char_of_int |> String.make 1) ^ acc) in

@@ -172,3 +172,7 @@ let function_list: (string * function_t) list = [
 let functions: (string, function_t) Hashtbl.t = Hashtbl.of_seq (List.to_seq function_list);;
 
 let variables: (string, float) Hashtbl.t = Hashtbl.of_seq (List.to_seq variable_list);;
+
+let remove_var (n: string): unit = if Hashtbl.find_opt variables n |> Option.is_none then Hashtbl.remove variables n;;
+
+let add_var (n: string)  (v: float) : unit = remove_var n; Hashtbl.add variables n v;;
