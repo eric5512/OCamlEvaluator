@@ -1,6 +1,5 @@
 open Expression;;
 
-(* TODO: Add support for logarithmic derivatives *)
 (* TODO: Derivate user defined functions *)
 (* TODO: Partial derivates not working *)
 
@@ -9,8 +8,11 @@ let rec derivate var = function
   | Bop (Sub, l, r) -> Bop (Sub, derivate var l, derivate var r)
   | Bop (Mul, l, r) -> Bop (Add, Bop (Mul, derivate var l, r), Bop (Mul, l, derivate var r))
   | Bop (Div, l, r) -> Bop (Div, Bop (Sub, Bop (Mul, derivate var l, r), Bop (Mul, l, derivate var r)), Bop (Pow, r, Val 2.0))
-  | Bop (Pow, Var s, r) when (s = var) && (operation_contains (Var s) r |> not) -> Bop (Mul, Bop (Mul, r, derivate var r), Bop (Pow, Var s, Bop (Sub, r, Val 1.))) (* TODO: Fix pow derivates https://brilliant.org/wiki/derivatives-of-exponential-functions/ *)
-  | Bop (Pow, l, r) -> Bop (Pow, derivate var l, derivate var r)
+  | Bop (Pow, l, r) when 
+    (operation_contains (Var var) l) && (operation_contains (Var var) r |> not) -> 
+      Bop (Mul, Bop (Mul, r, derivate var l), Bop (Pow, Var var, Bop (Sub, r, Val 1.)))
+  (* | Bop (Pow, l, r) ->  *)
+  (* TODO: Add exponential derivatives https://brilliant.org/wiki/derivatives-of-exponential-functions/ *)
   | Neg o -> Neg (derivate var o)
   | Fun (f, o) -> Bop (Mul, (match f, o with
     | ("sin", o) -> Fun ("cos", o)
@@ -23,4 +25,5 @@ let rec derivate var = function
     | ("log2", o) -> Bop (Div, Fun ("log2", [| Var "euler" |]), o.(0))
     | _ -> raise (Missing_derivate f)), derivate var o.(0))
   | Var s -> if s = var then Val 1.0 else Val 0.0
-  | Val _ -> Val 0.0;;
+  | Val _ -> Val 0.0
+  | op -> raise (Missing_derivate (string_of_operation op));;

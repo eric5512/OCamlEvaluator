@@ -105,7 +105,8 @@ type expr_t = Op of operation_t
 | Base of (string * float)
 | Solve of (operation_t * string * operation_t)
 | Plot of (operation_t * string * operation_t * operation_t)
-| Listc;;
+| Listc
+| Help;;
 
 let variable_list: (string * float) list = [
   (* Math constants *)

@@ -8,7 +8,7 @@ open Expression
 %token LPAR RPAR COMMA
 %token EOL
 
-%token ASSIGN DEF DER SIM CONV BASE SOLVE PLOT LIST
+%token ASSIGN DEF DER SIM CONV BASE SOLVE PLOT LIST HELP
 
 %left ADD SUB
 %left MUL DIV
@@ -25,6 +25,8 @@ main:
 expression:
 | o = operation
     { Op o }
+| HELP
+    { Help }
 | LIST
     { Listc }
 | DEF fn = ID LPAR vars = separated_nonempty_list(COMMA, ID) RPAR o = operation
