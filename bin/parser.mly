@@ -40,8 +40,8 @@ expression:
     { Der (var, o) }
 | CONV src = ID dst = ID o = operation
     { Conv (src, dst, o)}
-| BASE b = ID n = NUM
-    { Base (b, n) }
+| BASE b = ID o = operation
+    { Base (b, o) }
 | SOLVE o = operation v = ID i = operation
     { Solve (o, v, i) }
 | SOLVE o = operation v = ID

@@ -31,7 +31,7 @@ let process (optional_line : string option) =
           | Left (Der (var, op)) -> Derivate.derivate var op |> Simplify.simplify |> Expression.string_of_operation |> Printf.fprintf stdout "%s\n%!"
           | Left (Sim ex) -> Simplify.simplify ex |> Expression.string_of_operation |> Printf.fprintf stdout "%s\n%!"
           | Left (Conv (src, dst, value)) -> Convert.convert src dst value |> string_of_float |> Printf.fprintf stdout "%s\n%!"
-          | Left (Base (base, num)) -> Base.base_change base num |> Printf.fprintf stdout "%s\n%!"
+          | Left (Base (base, op)) -> Eval.eval Expression.variables op |> Base.base_change base |> Printf.fprintf stdout "%s\n%!"
           | Left (Solve (op, var, init)) -> let res = Solve.find_zero op var (Eval.eval Expression.variables init) 1e-10 in 
           Expression.add_var "ans" res;
             Printf.fprintf stdout "%f\n%!" res

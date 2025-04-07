@@ -102,7 +102,7 @@ type expr_t = Op of operation_t
 | Der of (string * operation_t)
 | Sim of operation_t
 | Conv of (string * string * operation_t)
-| Base of (string * float)
+| Base of (string * operation_t)
 | Solve of (operation_t * string * operation_t)
 | Plot of (operation_t * string * operation_t * operation_t)
 | Listc
