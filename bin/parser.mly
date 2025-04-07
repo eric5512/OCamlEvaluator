@@ -4,7 +4,7 @@ open Expression
 
 %token <float> NUM
 %token <string> ID
-%token ADD SUB MUL DIV POW
+%token ADD SUB MUL DIV PAR POW
 %token LPAR RPAR COMMA
 %token EOL
 
@@ -12,6 +12,7 @@ open Expression
 
 %left ADD SUB
 %left MUL DIV
+%left PAR
 %left POW
 
 %start <expr_t> main
@@ -65,6 +66,8 @@ operation:
     { Bop (Mul, e1, e2) }
 | e1 = operation DIV e2 = operation
     { Bop (Div, e1, e2) }
+| e1 = operation PAR e2 = operation
+    { Bop (Par, e1, e2) }
 | e1 = operation POW e2 = operation
     { Bop (Pow, e1, e2) }
 | s = ID

@@ -1,5 +1,7 @@
 open Expression;;
 
+(* TODO: Add non-trivial simplification *)
+
 let simplify expr = 
   let rec aux = function
       | Bop (op, Val l, Val r) -> (Val ((bop_to_op op) l r), true)

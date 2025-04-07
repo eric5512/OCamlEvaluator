@@ -45,6 +45,8 @@ let process (optional_line : string option) =
         Printf.printf "Error applying arguments to function. %d given and %d expected\n%!\n" g e
       | Expression.Unknown_variable s ->
         Printf.printf "Unknown variable: \"%s\"\n%!\n" s
+      | Expression.Unknown_function s ->
+          Printf.printf "Unknown function: \"%s\"\n%!\n" s
       | Expression.Incompatible_magnitudes (m1, m2) ->
         Printf.printf "Non existing conversion between \"%s\" and \"%s\"%!\n" m1 m2
       | Expression.Unit_nonimplemented u ->

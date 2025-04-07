@@ -1,19 +1,19 @@
-type bop_t = Add | Sub | Mul | Div | Pow
+type bop_t = Add | Sub | Mul | Div | Par | Pow
 
 let bop_to_op = function 
   | Add -> (Float.add) | Sub -> (Float.sub)
   | Mul -> (Float.mul) | Div -> (Float.div)
-  | Pow -> (Float.pow);;
+  | Pow -> (Float.pow) | Par -> (fun (a:float) (b:float) -> 1./.(1./.a+.1./.b));;
 
 let bop_to_str = function
   | Add -> "+" | Sub -> "-"
   | Mul -> "*" | Div -> "/"
-  | Pow -> "^";;
+  | Pow -> "^" | Par -> "//";;
 
 let bop_priority = function
-  | Add -> 3 | Sub -> 3
-  | Mul -> 2 | Div -> 2
-  | Pow -> 1;;
+  | Add -> 4 | Sub -> 4
+  | Mul -> 3 | Div -> 3
+  | Par -> 2 | Pow -> 1;;
 
 type operation_t =  Bop of bop_t * operation_t * operation_t
                   | Neg of operation_t
@@ -174,6 +174,6 @@ let functions: (string, function_t) Hashtbl.t = Hashtbl.of_seq (List.to_seq func
 
 let variables: (string, float) Hashtbl.t = Hashtbl.of_seq (List.to_seq variable_list);;
 
-let remove_var (n: string): unit = if Hashtbl.find_opt variables n |> Option.is_none then Hashtbl.remove variables n;;
+let remove_var (n: string): unit = if Hashtbl.find_opt variables n |> Option.is_some then Hashtbl.remove variables n;;
 
 let add_var (n: string)  (v: float) : unit = remove_var n; Hashtbl.add variables n v;;

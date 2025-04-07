@@ -55,6 +55,8 @@ and token = parse
     { SUB }
 | '^'
     { POW }
+| "//"
+    { PAR }
 | '*'
     { MUL }
 | '/'
