@@ -8,9 +8,11 @@ let rec derivate var = function
   | Bop (Sub, l, r) -> Bop (Sub, derivate var l, derivate var r)
   | Bop (Mul, l, r) -> Bop (Add, Bop (Mul, derivate var l, r), Bop (Mul, l, derivate var r))
   | Bop (Div, l, r) -> Bop (Div, Bop (Sub, Bop (Mul, derivate var l, r), Bop (Mul, l, derivate var r)), Bop (Pow, r, Val 2.0))
-  | Bop (Pow, l, r) when 
-    (operation_contains (Var var) l) && (operation_contains (Var var) r |> not) -> 
+  | Bop (Pow, l, r) -> 
+    if (operation_contains (Var var) l) && (operation_contains (Var var) r |> not) then
       Bop (Mul, Bop (Mul, r, derivate var l), Bop (Pow, Var var, Bop (Sub, r, Val 1.)))
+    else
+      Val 0.0
   (* | Bop (Pow, l, r) ->  *)
   (* TODO: Add exponential derivatives https://brilliant.org/wiki/derivatives-of-exponential-functions/ *)
   | Neg o -> Neg (derivate var o)
