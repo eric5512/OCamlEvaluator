@@ -2,6 +2,10 @@ let file = ref "";;
 let load = ref "";;
 let erepl = ref false;;
 
+(* TODO: Add ">>>" at the beggining of each line *)
+(* TODO: Add Two's complement interpretation for arbitrary bit size numbers *)
+(* TODO: Add bitwise operations like shift, rotate, and, or... *)
+
 let process (line : string): (Expression.expr_t, string) Either.t =
   let linebuf = Lexing.from_string line in
   try

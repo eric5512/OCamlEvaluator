@@ -29,6 +29,8 @@ let unit_list: (string * (magnitude_t * (float -> float) * (float -> float))) li
   ("m", (Length, Fun.id, Fun.id));
   ("km", (Length, (fun x -> x *. 1000.), (fun x -> x /. 1000.)));
   ("cm", (Length, (fun x -> x *. 0.01), (fun x -> x /. 0.01)));
+  ("mm", (Length, (fun x -> x /. 1000.), (fun x -> x *. 1000.)));
+  ("mil", (Length, (fun x -> x *. 0.0000254), (fun x -> x *. 0.0000254)));
   ("ft", (Length, (fun x -> x /. 3.28084), (fun x -> x *. 3.28084)));
   ("mile", (Length, (fun x -> x /. 0.000621371), (fun x -> x *. 0.000621371)));
   ("inch", (Length, (fun x -> x /. 39.3701), (fun x -> x *. 39.3701)));

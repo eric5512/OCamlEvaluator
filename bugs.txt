@@ -1,0 +1,9 @@
+- When using variables inside functions
+"
+0.00714285714283
+2/219.19
+0.0091245038551
+DEF w(x) x*2*pi
+w(1)
+Unknown variable: "pi"
+"
