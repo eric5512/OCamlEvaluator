@@ -18,6 +18,7 @@ do
     DIFF=$(diff "./test_$VAR.out" "./test_$VAR.exp")
     if [ "$DIFF" ]
     then
+        echo "Test FAILED"
         echo "$DIFF"
     else
         echo "Test OK"
@@ -32,6 +33,7 @@ $PROGRAM --file "./test_defs.in" --load "./defs.def" > "./test_defs.out"
 DIFF=$(diff "./test_defs.out" "./test_defs.exp")
 if [ "$DIFF" ]
 then
+    echo "Test FAILED"
     echo "$DIFF"
 else
     echo "Test OK"

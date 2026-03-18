@@ -168,6 +168,13 @@ let function_list: (string * function_t) list = [
   "min", OFun (Arg2 Float.min);                 (* Minimum of two numbers *)
   "max", OFun (Arg2 Float.max);                 (* Maximum of two numbers *)
   "hypot", OFun (Arg2 Float.hypot);             (* sqrt(x^2 + y^2) *)
+
+  (* Numerical conversion functions *)
+  "c2", OFun (Arg2 
+    (fun n -> fun b -> 
+      let mask = (Int.shift_left 1 (int_of_float b - 1)) in 
+      let a = (Int.logand mask (int_of_float n)) in 
+        if a > 0 then (Int.logand (mask-1) (int_of_float n) - mask) |> float_of_int else n)); (* Two's complement function *)
 ];;
 
 let functions: (string, function_t) Hashtbl.t = Hashtbl.of_seq (List.to_seq function_list);;

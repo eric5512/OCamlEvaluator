@@ -3,7 +3,6 @@ let load = ref "";;
 let erepl = ref false;;
 
 (* TODO: Add ">>>" at the beggining of each line *)
-(* TODO: Add Two's complement interpretation for arbitrary bit size numbers *)
 (* TODO: Add bitwise operations like shift, rotate, and, or... *)
 
 let process (line : string): (Expression.expr_t, string) Either.t =
@@ -37,7 +36,7 @@ let process (optional_line : string option) =
           | Left (Conv (src, dst, value)) -> Convert.convert src dst value |> string_of_float |> Printf.fprintf stdout "%s\n%!"
           | Left (Base (base, op)) -> Eval.eval Expression.variables op |> Base.base_change base |> Printf.fprintf stdout "%s\n%!"
           | Left (Solve (op, var, init)) -> let res = Solve.find_zero op var (Eval.eval Expression.variables init) 1e-10 in 
-          Expression.add_var "ans" res;
+            Expression.add_var "ans" res;
             Printf.fprintf stdout "%f\n%!" res
           | Left (Plot (op, var, b, e)) -> Plot.plot op var (Eval.eval Expression.variables b) (Eval.eval Expression.variables e) |> ignore
           | Left (Listc) -> Printf.printf "%s%!\n" (Listc.list ())
@@ -50,7 +49,7 @@ let process (optional_line : string option) =
       | Expression.Unknown_variable s ->
         Printf.printf "Unknown variable: \"%s\"\n%!\n" s
       | Expression.Unknown_function s ->
-          Printf.printf "Unknown function: \"%s\"\n%!\n" s
+        Printf.printf "Unknown function: \"%s\"\n%!\n" s
       | Expression.Incompatible_magnitudes (m1, m2) ->
         Printf.printf "Non existing conversion between \"%s\" and \"%s\"%!\n" m1 m2
       | Expression.Unit_nonimplemented u ->
@@ -75,14 +74,14 @@ let repeat_erepl (): unit =
       let cont = ref true in
       let lexbuff = Lexing.from_channel read_channel in
       try
-      while !cont do
-        (let str = Repl.read_line () ^ "\n" in
-        (output_string write_channel str);
-        flush write_channel;
-        let optional_line, continue = Lexer.line lexbuff in
-        cont := continue;
-        process optional_line)
-      done
+        while !cont do
+          (let str = Repl.read_line () ^ "\n" in
+          (output_string write_channel str);
+          flush write_channel;
+          let optional_line, continue = Lexer.line lexbuff in
+          cont := continue;
+          process optional_line)
+        done
       with
         | End_of_file -> repeat ()
         | Sys_error msg -> Printf.eprintf "Error: %s\n" msg in 
@@ -95,9 +94,9 @@ let () =
     Sys.set_signal Sys.sigint (Sys.Signal_handle (fun _ -> Repl.disable_raw_mode (); print_endline ""; exit 0)); (* Handle the Ctrl-C signal *)
 
     let speclist = [
-    ("--file", Arg.Set_string file, "Selects the input file to evaluate");
-    ("--load", Arg.Set_string load, "Selects a file to load definitions");
-    ("--erepl", Arg.Set erepl, "Disable Enchanced repl mode");
+      ("--file", Arg.Set_string file, "Selects the input file to evaluate");
+      ("--load", Arg.Set_string load, "Selects a file to load definitions");
+      ("--erepl", Arg.Set erepl, "Disable Enchanced repl mode");
     ]
     in let usage_msg = "oeval"
     in Arg.parse speclist print_endline usage_msg;

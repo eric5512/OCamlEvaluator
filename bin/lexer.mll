@@ -43,6 +43,23 @@ and token = parse
     { NUM (float_of_int (int_of_string n)) }
 | ['0'-'9']+ '.'? ['0'-'9']* 'e' '-'? ['0'-'9']+ as f
     { NUM (float_of_string f) }
+| ['0'-'9']+ '.'? ['0'-'9']* ['m' 'n' 'u' 'p' 'f' 'k' 'M' 'G' 'T'] as f
+    { 
+        let len = String.length f in
+        let m = match f.[len-1] with
+        | 'm' -> 1e-3
+        | 'u' -> 1e-6
+        | 'n' -> 1e-9
+        | 'p' -> 1e-12
+        | 'f' -> 1e-15
+        | 'k' -> 1e3
+        | 'M' -> 1e6
+        | 'G' -> 1e9
+        | 'T' -> 1e12
+        | _ -> failwith "Prefix not valid" in
+        let num = String.sub f 0 (len - 1) in
+        NUM (m *. (float_of_string num))
+    }
 | ['0'-'9']+ '.'? ['0'-'9']* as f
     { NUM (float_of_string f) }
 | ['a'-'z' 'A'-'Z' '_'] ['a'-'z' 'A'-'Z' '_' '0'-'9']* as s 
