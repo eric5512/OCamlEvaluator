@@ -27,7 +27,9 @@ expression:
 | o = operation
     { Op o }
 | HELP
-    { Help }
+    { Help (None) }
+| HELP cmd = ID
+    { Help (Some cmd) }
 | LIST
     { Listc }
 | DEF fn = ID LPAR vars = separated_nonempty_list(COMMA, ID) RPAR o = operation

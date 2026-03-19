@@ -40,7 +40,7 @@ let process (optional_line : string option) =
             Printf.fprintf stdout "%f\n%!" res
           | Left (Plot (op, var, b, e)) -> Plot.plot op var (Eval.eval Expression.variables b) (Eval.eval Expression.variables e) |> ignore
           | Left (Listc) -> Printf.printf "%s%!\n" (Listc.list ())
-          | Left (Help) -> Printf.printf "%s%!\n" (Help.help ())
+          | Left (Help cmd) -> Printf.printf "%s%!\n" (match cmd with None -> Help.help () | Some cmd -> Help.help_cmd cmd)
           | Right msg -> Printf.printf "%s%!\n" msg);
         flush stdout
       with

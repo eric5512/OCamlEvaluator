@@ -1,8 +1,20 @@
 let help () = 
-  "BASE name value // Gives the number on a different base\n" ^
-  "CONV from to value // Convert between units\n" ^
-  "DER expression variable // Symbolic derivative\n" ^
-  "LIST // List all the functions and variables\n" ^
-  "PLOT expression variable begin end // Plot the variable in the specified range\n" ^
-  "SOLVE expression variable [value] // Solve the expression to equal 0. Starts from value if specified\n" ^
-  "SIM expression // Simplifies the expression\n";;
+  Base.help_short ^ "\n" ^
+  Convert.help_short ^ "\n" ^
+  Derivate.help_short ^ "\n" ^
+  Listc.help_short ^ "\n" ^
+  Plot.help_short ^ "\n" ^
+  Solve.help_short ^ "\n" ^
+  Simplify.help_short ^ "\n" ^
+  "HELP cmd //Enter the lowercase command name to get extended help";;
+
+let help_cmd (command: string) = match command with
+  | "base"  -> Base.help_long
+  | "conv"  -> Convert.help_long
+  | "der"   -> Derivate.help_long
+  | "list"  -> Listc.help_long
+  | "plot"  -> Plot.help_long
+  | "solve" -> Solve.help_long
+  | "sim"   -> Simplify.help_long
+  | _       -> raise (Failure "Not implemented")
+

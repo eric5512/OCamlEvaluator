@@ -1,5 +1,12 @@
 open Expression;;
 
+let help_short = "SIM expression // Simplifies the expression";;
+
+let help_long = "Simplify command: Simplify a given expression
+Syntax: SIM expression
+With:
+\t- Expression: Expression to be simplified";;
+
 (* TODO: Add non-trivial simplification *)
 
 let simplify expr = 

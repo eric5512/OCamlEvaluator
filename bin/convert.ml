@@ -1,5 +1,8 @@
 open Expression;;
 
+let help_short = "CONV from to value // Convert between units";;
+                  
+
 type magnitude_t = 
   Length
   | Mass
@@ -97,3 +100,19 @@ let convert (src: string) (dst: string) (operation: operation_t): float =
     raise (Incompatible_magnitudes (string_of_magnitude m1, string_of_magnitude m2)) 
   else
     from value |> too;;
+
+
+let help_long =
+  let group_by_magnitude l =
+    List.to_seq l |>
+      Seq.group (fun (_,(u1,_,_)) (_,(u2,_,_)) -> u1 = u2) |>
+      Seq.map (fun x -> (let (_,(u,_,_)) = Seq.uncons x |> Option.get |> fst in string_of_magnitude u, Seq.map (fun (n,(_,_,_)) -> n) x |> List.of_seq |> String.concat ", ")) |>
+      List.of_seq in
+  "Convert command
+Syntax: CONV from to value
+With:
+\t- From: The unit of the input value
+\t- To: The unit you want to convert to
+\t- Value: The value to be converted
+Available units:
+" ^ (List.map (fun (u,n) -> Format.sprintf "\t-%s: %s" u n) (group_by_magnitude unit_list) |> String.concat "\n")

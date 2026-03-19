@@ -1,5 +1,10 @@
 open Expression;;
 
+let help_short = "LIST // List all the functions and variables";;
+
+let help_long = "List command: List all the functions and variables
+Syntax: LIST"
+
 let list (): string = 
   "Variables:\n" ^
   Hashtbl.fold (fun n v acc -> acc ^ (Printf.sprintf "\t%s = %.10e\n" n v)) variables "" ^

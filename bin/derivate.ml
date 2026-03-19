@@ -1,5 +1,13 @@
 open Expression;;
 
+let help_short = "DER expression variable // Symbolic derivative";;
+
+let help_long = "Derivate command: Calculate the symbolic derivative of a expression
+Syntax: DER expression variable
+With:
+\t- Expression: The expression to be derivated
+\t- Variable: The variable of the derivative"
+
 (* TODO: Derivate user defined functions *)
 (* TODO: Partial derivates not working *)
 
